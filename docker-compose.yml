@@ -1,0 +1,11 @@
+version: '3'
+services:
+    mongo:
+        ports:
+            - "27017:27017"
+        volumes:
+            - "/home/jjj/mongoData:/data/db"
+        environment:
+            - TZ=Asia/Taipei
+        image: mongo
+        command: [--auth]
