@@ -1,6 +1,7 @@
 import * as express from 'express';
 import User from './user.interface';
 import { IBasicController } from 'src/common/basic.interface';
+import userModel from './users.model';
 
 class UsersController implements IBasicController {
     public path = '/users';
@@ -8,10 +9,10 @@ class UsersController implements IBasicController {
 
     private users: User[] = [
         {
-            author: 'Marcin',
-            content: 'Dolor sit amet',
-            title: 'Lorem Ipsum',
-        },
+            account: 'Marcin',
+            password: 'Dolor sit amet',
+            coin: 'Lorem Ipsum'
+        }
     ];
 
     constructor() {
@@ -19,18 +20,30 @@ class UsersController implements IBasicController {
     }
 
     public intializeRoutes() {
+        this.router.get(`${this.path}/:id`, this.getUserById);
         this.router.get(this.path, this.getAllUser);
         this.router.post(this.path, this.createAUser);
     }
 
+    getUserById = (request: express.Request, response: express.Response) => {
+        const id = request.params.id;
+        userModel.findById(id).then((user) => {
+            response.send(user);
+        });
+    };
+
     getAllUser = (request: express.Request, response: express.Response) => {
-        response.send(this.users);
+        userModel.find().then((users) => {
+            response.send(users);
+        });
     };
 
     createAUser = (request: express.Request, response: express.Response) => {
-        const user: User = request.body;
-        this.users.push(user);
-        response.send(user);
+        const userData: User = request.body;
+        const createdUser = new userModel(userData);
+        createdUser.save().then((savedUser) => {
+            response.send(savedUser);
+        });
     };
 }
 

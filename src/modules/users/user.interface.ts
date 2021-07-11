@@ -1,7 +1,7 @@
 interface User {
-    author: string;
-    content: string;
-    title: string;
+    account: string;
+    password: string;
+    coin: string;
 }
 
 export default User;
