@@ -7,15 +7,12 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "dist",
+        "experimentalDecorators": true,
         "incremental": true,
         "diagnostics": true,
-        "baseUrl": "./",
+        "baseUrl": ".",
         "paths": {
-            "src/*": ["src/*"],
-            "*": [
-                "node_modules/*",
-                "src/*"
-            ],
+            "src/*": ["src/*"]
         }
     },
     "include": [ "src/**/*.ts" ],

@@ -2,6 +2,9 @@ import * as express from 'express';
 import User from './user.interface';
 import { IBasicController } from 'src/common/basic.interface';
 import userModel from './users.model';
+import PostNotFoundException from 'src/common/exceptions/PostNotFoundException';
+import validationMiddleware from 'src/common/middlewares/validation.middleware';
+import CreateUserDto from './user.dto';
 
 class UsersController implements IBasicController {
     public path = '/users';
@@ -22,12 +25,25 @@ class UsersController implements IBasicController {
     public intializeRoutes() {
         this.router.get(`${this.path}/:id`, this.getUserById);
         this.router.get(this.path, this.getAllUser);
-        this.router.post(this.path, this.createAUser);
+        this.router.post(
+            this.path,
+            validationMiddleware(CreateUserDto),
+            this.createAUser
+        );
     }
 
-    getUserById = (request: express.Request, response: express.Response) => {
+    getUserById = (
+        request: express.Request,
+        response: express.Response,
+        next: express.NextFunction
+    ) => {
         const id = request.params.id;
         userModel.findById(id).then((user) => {
+            if (!user) {
+                next(new PostNotFoundException(id));
+                return;
+            }
+
             response.send(user);
         });
     };
