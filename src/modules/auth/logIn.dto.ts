@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-class CreateUserDto {
+class LogInDto {
     @IsString()
     public account: string;
 
@@ -8,4 +8,4 @@ class CreateUserDto {
     public password: string;
 }
 
-export default CreateUserDto;
+export default LogInDto;

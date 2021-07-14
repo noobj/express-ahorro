@@ -1,7 +1,7 @@
 interface User {
+    _id: string;
     account: string;
     password: string;
-    coin: string;
 }
 
 export default User;

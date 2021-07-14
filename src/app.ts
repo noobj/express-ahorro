@@ -1,7 +1,7 @@
 import express from 'express';
-import * as bodyParser from 'body-parser';
-import { IBasicController } from 'src/common/basic.interface';
-import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import { IBasicController } from 'src/common/interfaces/basic.interface';
 import mongoose from 'mongoose';
 import errorMiddleware from './common/middlewares/error.middleware';
 
@@ -26,6 +26,7 @@ class App {
         });
 
         this.app.use(bodyParser.json());
+        this.app.use(cookieParser());
     }
 
     private initializeControllers(controllers: IBasicController[]) {
@@ -45,7 +46,6 @@ class App {
     }
 
     private connectToTheDatabase() {
-        dotenv.config();
         const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH } = process.env;
         mongoose.connect(
             `mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`,

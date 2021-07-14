@@ -1,43 +1,35 @@
 import * as express from 'express';
 import User from './user.interface';
-import { IBasicController } from 'src/common/basic.interface';
-import userModel from './users.model';
+import { IBasicController } from 'src/common/interfaces/basic.interface';
+import userModel from './user.model';
 import PostNotFoundException from 'src/common/exceptions/PostNotFoundException';
 import validationMiddleware from 'src/common/middlewares/validation.middleware';
 import CreateUserDto from './user.dto';
+import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
+import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 
 class UsersController implements IBasicController {
     public path = '/users';
     public router = express.Router();
 
-    private users: User[] = [
-        {
-            account: 'Marcin',
-            password: 'Dolor sit amet',
-            coin: 'Lorem Ipsum'
-        }
-    ];
-
     constructor() {
-        this.intializeRoutes();
+        this.initializeRoutes();
     }
 
-    public intializeRoutes() {
-        this.router.get(`${this.path}/:id`, this.getUserById);
-        this.router.get(this.path, this.getAllUser);
-        this.router.post(
-            this.path,
-            validationMiddleware(CreateUserDto),
-            this.createAUser
-        );
+    public initializeRoutes() {
+        this.router
+            .all(`${this.path}/*`, jwtAuthMiddleware)
+            .get(`${this.path}/:id`, this.getUserById)
+            .get(this.path, this.getAllUser)
+            .post(this.path, validationMiddleware(CreateUserDto), this.createAUser);
     }
 
     getUserById = (
-        request: express.Request,
+        request: requestWithUser,
         response: express.Response,
         next: express.NextFunction
     ) => {
-        const id = request.params.id;
+        const id = request.user._id;
         userModel.findById(id).then((user) => {
             if (!user) {
                 next(new PostNotFoundException(id));
