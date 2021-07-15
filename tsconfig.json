@@ -10,6 +10,7 @@
         "experimentalDecorators": true,
         "incremental": true,
         "diagnostics": true,
+        "skipLibCheck": true,
         "baseUrl": ".",
         "paths": {
             "src/*": ["src/*"]

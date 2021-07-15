@@ -1,0 +1,69 @@
+[{
+  "_id": 1,
+  "name": "Breakfast",
+  "color": "#50d034"
+},{
+  "_id": 2,
+  "name": "Lunch",
+  "color": "#8c30d9"
+},{
+  "_id": 3,
+  "name": "Dinner",
+  "color": "#98a3e3"
+},{
+  "_id": 4,
+  "name": "Beverage",
+  "color": "#9489ce"
+},{
+  "_id": 5,
+  "name": "Snack",
+  "color": "#9b98e4"
+},{
+  "_id": 6,
+  "name": "Traffic",
+  "color": "#f88ba0"
+},{
+  "_id": 7,
+  "name": "Grocery",
+  "color": "#43e4d7"
+},{
+  "_id": 8,
+  "name": "Entertainment",
+  "color": "#a19e5b"
+},{
+  "_id": 9,
+  "name": "Investment",
+  "color": "#368733"
+},{
+  "_id": 10,
+  "name": "Cloth",
+  "color": "#7c187b"
+},{
+    "_id": 12,
+    "name": "Rent",
+    "color": "#7c1a7b"
+},{
+  "_id": 15,
+  "name": "Medical",
+  "color": "#88d70"
+},{
+  "_id": 16,
+  "name": "phone",
+  "color": "#92119b"
+},{
+  "_id": 26,
+  "name": "Training",
+  "color": "#f68ee9"
+},{
+  "_id": 27,
+  "name": "3C",
+  "color": "#d9ada8"
+},{
+  "_id": 28,
+  "name": "Cash Gift",
+  "color": "#41a5bd"
+},{
+    "_id": 31,
+    "name": "food",
+    "color": "#4aa5bd"
+}]

@@ -95,12 +95,12 @@ class AuthenticationController implements Controller {
     }
 
     private createCookie(tokenData: TokenData) {
-        return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
+        return `Authorization=${tokenData.token}; Path=/; HttpOnly; Max-Age=${tokenData.expiresIn}`;
     }
 
     private loggingOut = (request: express.Request, response: express.Response) => {
         response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
-        response.sendStatus(200);
+        response.send('logged out');
     };
 }
 
