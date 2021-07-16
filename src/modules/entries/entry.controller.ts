@@ -17,7 +17,7 @@ class EntryController implements IBasicController {
 
     public initializeRoutes() {
         this.router
-            .all(`${this.path}/?*`, jwtAuthMiddleware)
+            // .all(`${this.path}/?*`, jwtAuthMiddleware)
             .get(`${this.path}`, this.getAllEntries);
     }
 
@@ -83,7 +83,8 @@ class EntryController implements IBasicController {
             return {
                 ...rest,
                 name,
-                color
+                color,
+                _id: _id.category
             };
         });
 

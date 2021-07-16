@@ -1,5 +1,14 @@
 version: '3'
 services:
+    nginx:
+        ports:
+            - "8081:80"
+        image: nginx
+        volumes:
+            - "./dist/public:/usr/share/nginx/html:ro"
+            - "./default.conf:/etc/nginx/conf.d/default.conf"
+        environment:
+            - TZ=Asia/Taipei
     mongo:
         ports:
             - "27017:27017"
