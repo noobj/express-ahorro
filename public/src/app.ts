@@ -1,15 +1,15 @@
 import Vue from 'vue';
-import Main from './Main';
+import Main from './Main.vue';
 import './app.scss';
 import './app.css';
 import { BootstrapVue } from 'bootstrap-vue';
 
 Vue.use(BootstrapVue);
-Vue.filter('toCurrency', function (value) {
+Vue.filter('toCurrency', (value: number) => {
     if (typeof value !== "number") {
         return value;
     }
-    var formatter = new Intl.NumberFormat('en-US', {
+    const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
         minimumFractionDigits: 0
