@@ -38,9 +38,8 @@
 
 ### Built With
 
-* [Bootstrap](https://getbootstrap.com)
-* [Koa](https://koajs.com/)
-* [Apollo](https://www.apollographql.com/)
+* [ExpressJS](https://expressjs.com/)
+* [TailwindCSS](https://tailwindcss.com/)
 * [Vue](https://vuejs.org/)
 * [MongoDB](https://www.mongodb.com/)
 
