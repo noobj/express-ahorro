@@ -148,7 +148,7 @@ export default {
                 .then((res) => {
                     window.open(res.data);
                 })
-                .catch((err) => {
+                .catch(() => {
                     alert('something wrong.');
                 });
         },
