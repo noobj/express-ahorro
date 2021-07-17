@@ -6,7 +6,7 @@ import { BootstrapVue } from 'bootstrap-vue';
 
 Vue.use(BootstrapVue);
 Vue.filter('toCurrency', (value: number) => {
-    if (typeof value !== "number") {
+    if (typeof value !== 'number') {
         return value;
     }
     const formatter = new Intl.NumberFormat('en-US', {
@@ -18,5 +18,5 @@ Vue.filter('toCurrency', (value: number) => {
 });
 
 new Vue({
-    render: h => h(Main)
-  }).$mount('#main')
+    render: (h) => h(Main)
+}).$mount('#main');
