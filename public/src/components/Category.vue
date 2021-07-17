@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     // Emit event to the parent for exclude this category.
-    onClickButton: function (categoryId) {
+    onClickButton (categoryId) {
       this.$emit("exclude-category", categoryId);
     }
   },

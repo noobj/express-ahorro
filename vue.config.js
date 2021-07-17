@@ -11,8 +11,16 @@ module.exports = {
     outputDir: 'dist/public',
     pages: {
         index: {
-            entry: 'public/src/app.js',
+            entry: 'public/src/app.ts',
             template: 'public/index.html'
         }
+    },
+    chainWebpack: config => {
+        config
+          .plugin('fork-ts-checker')
+          .tap(args => {
+            args[0].tsconfig = './tsconfig.frontend.json';
+            return args;
+          });
     }
 }
