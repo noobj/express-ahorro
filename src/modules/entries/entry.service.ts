@@ -1,6 +1,8 @@
 import entryModel from './entry.model';
 import EntryCatgegoryBundle from './entryCatgegoryBundle.interface';
+import { injectable } from 'inversify';
 
+@injectable()
 class EntryService {
     fetchEntries = async (
         timeStart: string,

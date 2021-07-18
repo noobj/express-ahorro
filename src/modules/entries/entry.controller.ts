@@ -1,25 +1,15 @@
 import * as express from 'express';
-import { IBasicController } from 'src/common/interfaces/basic.interface';
 import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 import moment from 'moment';
 import EntryService from './entry.service';
+import { controller, httpGet } from 'inversify-express-utils';
 
-class EntryController implements IBasicController {
-    public path = '/entries';
-    public router = express.Router();
-    private entryService = new EntryService();
+@controller('/entries')
+class EntryController {
+    constructor(private entryService: EntryService) {}
 
-    constructor() {
-        this.initializeRoutes();
-    }
-
-    public initializeRoutes() {
-        this.router
-            // .all(`${this.path}/?*`, jwtAuthMiddleware)
-            .get(`${this.path}`, this.getAllEntries);
-    }
-
-    getAllEntries = async (request: requestWithUser, response: express.Response) => {
+    @httpGet('/')
+    public async getAllEntries(request: requestWithUser, response: express.Response) {
         const timeStartInput = request.query?.timeStart as string;
         const timeEndInput = request.query?.timeEnd as string;
 
@@ -71,7 +61,7 @@ class EntryController implements IBasicController {
         };
 
         response.send(res);
-    };
+    }
 }
 
 export default EntryController;

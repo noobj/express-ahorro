@@ -8,10 +8,13 @@
         "sourceMap": true,
         "outDir": "dist",
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "incremental": true,
         "diagnostics": true,
         "skipLibCheck": true,
+        "types": ["reflect-metadata"],
         "baseUrl": ".",
+        "lib": ["es6"],
         "paths": {
             "src/*": ["src/*"]
         }
