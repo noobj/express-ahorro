@@ -8,6 +8,8 @@ import { InversifyExpressServer } from 'inversify-express-utils';
 import { Container } from 'inversify';
 import { validateEnv } from './common/helpers/utils';
 import EntryService from './modules/entries/entry.service';
+import express from 'express';
+import { join } from 'path';
 
 validateEnv();
 const container = new Container();
@@ -23,6 +25,7 @@ server.setConfig((app) => {
     app.use(bodyParser.json());
     app.use(cookieParser());
     app.use(errorMiddleware);
+    app.use(express.static(join(__dirname, 'public')));
 });
 
 const port = +process.env.SERVER_PORT;
