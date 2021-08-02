@@ -122,7 +122,7 @@ export default {
             datacollection: {},
             randomColorsArr: null,
             entriesSortByDate: false,
-            categoriesExclude: [],
+            categoriesExclude: new Set(),
             yearlyCollection: {},
             skipQuery: true,
             activeCat: -1,
@@ -162,13 +162,15 @@ export default {
             return result;
         },
         excludeCategory(id) {
-            this.categoriesExclude.push(id.toString());
+            this.categoriesExclude.add(id);
+            this.fetchEntries();
         },
         activeCategory(id) {
             if (this.activeCat === id) id = -1;
             this.activeCat = id;
         },
         lastMonth() {
+            this.categoriesExclude.clear();
             if (this.isSameMonth()) {
                 this.start = moment(this.end)
                     .subtract(1, 'months')
@@ -184,10 +186,10 @@ export default {
             }
 
             this.skipQuery = true;
-            this.categoriesExclude = [];
             this.activeCat = -1;
         },
         nextMonth() {
+            this.categoriesExclude.clear();
             if (this.isSameMonth()) {
                 this.start = moment(this.end)
                     .add(1, 'months')
@@ -204,7 +206,6 @@ export default {
 
             this.yearDisplay = moment(this.end).endOf('year').format('YYYY');
             this.skipQuery = true;
-            this.categoriesExclude = [];
             this.activeCat = -1;
         },
         isSameMonth() {
@@ -223,6 +224,11 @@ export default {
             const params = new URLSearchParams();
             params.set('timeStart', this.start);
             params.set('timeEnd', this.end);
+            params.set(
+                'categoriesExclude',
+                Array.from(this.categoriesExclude).toString()
+            );
+            params.set('entriesSortByDate', this.entriesSortByDate);
 
             fetch(`/entries?${params.toString()}`)
                 .then((res) => res.json())
@@ -252,6 +258,9 @@ export default {
             this.fetchEntries();
         },
         start() {
+            this.fetchEntries();
+        },
+        entriesSortByDate() {
             this.fetchEntries();
         }
     },

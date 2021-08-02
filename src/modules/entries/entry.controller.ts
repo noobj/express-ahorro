@@ -12,6 +12,8 @@ class EntryController {
     public async getAllEntries(request: requestWithUser, response: express.Response) {
         const timeStartInput = request.query?.timeStart as string;
         const timeEndInput = request.query?.timeEnd as string;
+        const categoriesExclude = request.query?.categoriesExclude.toString().split(',');
+        const entriesSortByDate = request.query?.entriesSortByDate === 'true';
 
         const timeStart = moment(timeStartInput, 'YYYY-MM-DD').isValid()
             ? moment(timeStartInput, 'YYYY-MM-DD').toISOString()
@@ -20,9 +22,12 @@ class EntryController {
             ? moment(timeEndInput).toISOString()
             : moment().add(0, 'days').toISOString();
 
-        // need to add exclude function
-
-        const entries = await this.entryService.fetchEntries(timeStart, timeEnd);
+        const entries = await this.entryService.fetchEntries(
+            timeStart,
+            timeEnd,
+            categoriesExclude,
+            entriesSortByDate
+        );
 
         // organize date format
         let result = entries.map((x) => {
