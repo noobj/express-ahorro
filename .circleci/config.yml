@@ -4,9 +4,6 @@ jobs:
     docker:
       - image: circleci/node:14.16.1
       - image: circleci/mongo:4.4
-        environment:
-          MONGO_USERNAME: jjj
-          MONGO_PASSWORD: 1234
     steps:
       - run:
           name: MongoDB Install
@@ -24,13 +21,9 @@ jobs:
           name: Npm install
           command: npm ci
       - run:
-          name: Get versions
+          name: Set Up MongoDB
           command: |
-              node -v
-              npm -v
-              mongo --version
-              mongo localhost --eval "db.version()"
+            mongo --eval 'db.createUser({ user: "jjj", pwd: "1234", roles: [ { role: "readWrite", db: "test" } ] })'
       - run:
           name: Test
           command: ./node_modules/.bin/jest --config test/jest-e2e.json
-              
