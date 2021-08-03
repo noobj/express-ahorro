@@ -14,7 +14,7 @@ jobs:
       - node/install-packages
       - run: echo 'wtf'
       - run: pwd
-      - run: cd "~/project/sample-app" && pwd
+      - run: ls -al
 
 workflows:
   node-tests:
