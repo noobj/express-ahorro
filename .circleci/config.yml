@@ -22,7 +22,7 @@ jobs:
       - checkout
       - run:
           name: Npm install
-          command: npm install
+          command: npm ci
       - run:
           name: Get versions
           command: |
@@ -32,5 +32,5 @@ jobs:
               mongo localhost --eval "db.version()"
       - run:
           name: Test
-          command: jest --config test/jest-e2e.json
+          command: ./node_modules/.bin/jest --config test/jest-e2e.json
               
