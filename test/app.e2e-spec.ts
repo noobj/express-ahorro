@@ -14,7 +14,7 @@ import { join } from 'path';
 import EntrySeeder from 'src/database/seeders/entry.seeder';
 import CategorySeeder from 'src/database/seeders/category.seeder';
 
-dotenv.config({ path: join(__dirname, '../.env') });
+dotenv.config({ path: join(__dirname, '../.env.example') });
 
 describe('EntryController (e2e)', () => {
     let app: express.Application;
