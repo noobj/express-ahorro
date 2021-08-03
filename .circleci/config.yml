@@ -13,6 +13,8 @@ jobs:
       - checkout
       - node/install-packages
       - run: echo 'wtf'
+      - run: pwd
+      - run: cd "~/project/sample-app" && pwd
 
 workflows:
   node-tests:
