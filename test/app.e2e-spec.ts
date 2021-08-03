@@ -32,6 +32,7 @@ describe('EntryController (e2e)', () => {
         app = server.build();
 
         const { MONGO_USER, MONGO_PASSWORD, MONGO_TEST_PATH } = process.env;
+        console.log(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_TEST_PATH}`);
         try {
             await mongoose.connect(
                 `mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_TEST_PATH}`,

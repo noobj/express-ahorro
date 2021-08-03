@@ -22,7 +22,8 @@ jobs:
           command: npm ci
       - run:
           name: Set Up MongoDB
-          command: mongo --eval 'db.createUser({ user: "jjj", pwd: "1234", roles: [ { role: "readWrite", db: "test" } ] })'
+          command: |
+            mongo --eval 'db.createUser({ user: "jjj", pwd: "1234", roles: [ { role: "readWrite", db: "test" } ] })'
       - run:
           name: Test
           command: ./node_modules/.bin/jest --config test/jest-e2e.json
