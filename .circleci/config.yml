@@ -21,9 +21,16 @@ jobs:
           command: dockerize -wait tcp://localhost:27017 -timeout 1m
       - checkout
       - run:
+          name: Npm install
+          command: npm install
+      - run:
           name: Get versions
           command: |
               node -v
               npm -v
               mongo --version
               mongo localhost --eval "db.version()"
+      - run:
+          name: Test
+          command: jest --config test/jest-e2e.json
+              
