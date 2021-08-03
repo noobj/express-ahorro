@@ -12,13 +12,11 @@
         "incremental": true,
         "diagnostics": true,
         "skipLibCheck": true,
-        "types": ["reflect-metadata"],
+        "types": ["reflect-metadata", "jest"],
         "baseUrl": ".",
         "lib": ["es6"],
         "paths": {
             "src/*": ["src/*"]
         }
-    },
-    "include": [ "src/**/*.ts" ],
-    "exclude": [ "src/public", "node_modules" ]
+    }
 }

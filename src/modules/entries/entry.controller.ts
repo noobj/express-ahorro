@@ -12,7 +12,7 @@ class EntryController {
     public async getAllEntries(request: requestWithUser, response: express.Response) {
         const timeStartInput = request.query?.timeStart as string;
         const timeEndInput = request.query?.timeEnd as string;
-        const categoriesExclude = request.query?.categoriesExclude.toString().split(',');
+        const categoriesExclude = request.query?.categoriesExclude?.toString().split(',') || [];
         const entriesSortByDate = request.query?.entriesSortByDate === 'true';
 
         const timeStart = moment(timeStartInput, 'YYYY-MM-DD').isValid()
