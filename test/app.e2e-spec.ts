@@ -60,6 +60,20 @@ describe('EntryController (e2e)', () => {
             })
             .end((err, res) => {
                 expect(res.status).toEqual(200);
+                done();
+            });
+    });
+
+    it('/Get entries', (done) => {
+        return request(app)
+            .get('/entries')
+            .query({
+                timeStart: '2021-07-01',
+                timeEnd: '2021-07-31',
+                entriesSortByDate: false
+            })
+            .end((err, res) => {
+                expect(res.status).toEqual(200);
                 expect(res.body.total).toEqual(10282);
                 expect(
                     res.body.categories.find((category: any) => category.name == 'food')
