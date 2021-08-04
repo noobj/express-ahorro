@@ -16,6 +16,10 @@ import CategorySeeder from 'src/database/seeders/category.seeder';
 
 dotenv.config({ path: join(__dirname, '../.env.example') });
 
+function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 describe('EntryController (e2e)', () => {
     let app: express.Application;
 
@@ -43,6 +47,7 @@ describe('EntryController (e2e)', () => {
         }
 
         await Promise.all([EntrySeeder.run(), CategorySeeder.run()]);
+        await sleep(10000);
     });
 
     it('/Get entries', (done) => {
