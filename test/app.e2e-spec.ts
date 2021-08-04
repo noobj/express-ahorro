@@ -46,7 +46,8 @@ describe('EntryController (e2e)', () => {
             console.log(e);
         }
 
-        await Promise.all([EntrySeeder.run(), CategorySeeder.run()]);
+        await EntrySeeder.run();
+        await CategorySeeder.run();
     });
 
     it('/Get entries', (done) => {
