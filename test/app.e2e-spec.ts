@@ -23,7 +23,7 @@ function sleep(ms: number) {
 describe('EntryController (e2e)', () => {
     let app: express.Application;
 
-    beforeAll(async () => {
+    beforeAll(async (done) => {
         const container = new Container();
         container.bind<EntryService>(EntryService).toSelf();
         const server = new InversifyExpressServer(container);
@@ -46,8 +46,8 @@ describe('EntryController (e2e)', () => {
             console.log(e);
         }
 
-        await EntrySeeder.run();
-        await CategorySeeder.run();
+        await Promise.all([EntrySeeder.run(), CategorySeeder.run()]);
+        done();
     });
 
     it('/Get entries', (done) => {

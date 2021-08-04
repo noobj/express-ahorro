@@ -3,10 +3,7 @@ import entryModel from 'src/modules/entries/entry.model';
 class EntrySeeder {
     static async run() {
         await Promise.all([entryModel.createCollection(), entryModel.deleteMany()]);
-
-        const result = await entryModel.insertMany(entries, { rawResult: true });
-
-        console.log(result);
+        await entryModel.insertMany(entries);
     }
 }
 

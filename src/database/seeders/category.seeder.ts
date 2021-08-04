@@ -3,9 +3,7 @@ import categoryModel from 'src/modules/entries/category.model';
 class CategorySeeder {
     static async run() {
         await Promise.all([categoryModel.createCollection(), categoryModel.deleteMany()]);
-
-        const result = await categoryModel.insertMany(categories, { rawResult: true });
-        console.log(result);
+        await categoryModel.insertMany(categories);
     }
 }
 
