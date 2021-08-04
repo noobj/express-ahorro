@@ -4,7 +4,9 @@ class EntrySeeder {
     static async run() {
         await Promise.all([entryModel.createCollection(), entryModel.deleteMany()]);
 
-        await entryModel.insertMany(entries);
+        const result = await entryModel.insertMany(entries, { rawResult: true });
+
+        console.log(result);
     }
 }
 

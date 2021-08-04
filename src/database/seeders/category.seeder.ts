@@ -4,7 +4,8 @@ class CategorySeeder {
     static async run() {
         await Promise.all([categoryModel.createCollection(), categoryModel.deleteMany()]);
 
-        await categoryModel.insertMany(categories);
+        const result = await categoryModel.insertMany(categories, { rawResult: true });
+        console.log(result);
     }
 }
 

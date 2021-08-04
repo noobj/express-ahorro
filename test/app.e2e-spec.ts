@@ -47,7 +47,6 @@ describe('EntryController (e2e)', () => {
         }
 
         await Promise.all([EntrySeeder.run(), CategorySeeder.run()]);
-        await sleep(10000);
     });
 
     it('/Get entries', (done) => {
@@ -60,7 +59,6 @@ describe('EntryController (e2e)', () => {
             })
             .end((err, res) => {
                 expect(res.status).toEqual(200);
-                console.log(res.body.categories);
                 expect(res.body.total).toEqual(10282);
                 expect(
                     res.body.categories.find((category: any) => category.name == 'food')
