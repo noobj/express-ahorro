@@ -55,6 +55,7 @@ describe('EntryController (e2e)', () => {
             })
             .end((err, res) => {
                 expect(res.status).toEqual(200);
+                console.log(res.body.categories);
                 expect(res.body.total).toEqual(10282);
                 expect(
                     res.body.categories.find((category: any) => category.name == 'food')
