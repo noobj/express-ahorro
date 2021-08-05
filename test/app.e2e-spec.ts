@@ -16,27 +16,11 @@ import CategorySeeder from 'src/database/seeders/category.seeder';
 
 dotenv.config({ path: join(__dirname, '../.env.example') });
 
-function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 describe('EntryController (e2e)', () => {
     let app: express.Application;
 
     beforeAll(async (done) => {
-        const container = new Container();
-        container.bind<EntryService>(EntryService).toSelf();
-        const server = new InversifyExpressServer(container);
-        server.setConfig((app) => {
-            app.use(bodyParser.json());
-            app.use(cookieParser());
-            app.use(errorMiddleware);
-        });
-
-        app = server.build();
-
         const { MONGO_USER, MONGO_PASSWORD, MONGO_TEST_PATH } = process.env;
-        console.log(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_TEST_PATH}`);
         try {
             await mongoose.connect(
                 `mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_TEST_PATH}`,
@@ -47,6 +31,17 @@ describe('EntryController (e2e)', () => {
         }
 
         await Promise.all([EntrySeeder.run(), CategorySeeder.run()]);
+
+        const container = new Container();
+        container.bind<EntryService>(EntryService).toSelf();
+        const server = new InversifyExpressServer(container);
+        server.setConfig((app) => {
+            app.use(bodyParser.json());
+            app.use(cookieParser());
+            app.use(errorMiddleware);
+        });
+
+        app = server.build();
         done();
     });
 
@@ -59,20 +54,9 @@ describe('EntryController (e2e)', () => {
                 entriesSortByDate: false
             })
             .end((err, res) => {
-                expect(res.status).toEqual(200);
-                done();
-            });
-    });
-
-    it('/Get entries', (done) => {
-        return request(app)
-            .get('/entries')
-            .query({
-                timeStart: '2021-07-01',
-                timeEnd: '2021-07-31',
-                entriesSortByDate: false
-            })
-            .end((err, res) => {
+                res.body.categories.map((category: any) => {
+                    console.log(category);
+                });
                 expect(res.status).toEqual(200);
                 expect(res.body.total).toEqual(10282);
                 expect(
