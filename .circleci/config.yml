@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/node:14.16.1
-      - image: circleci/mongo:4.4
+      - image: circleci/mongo:4.4.6
     steps:
       - run:
           name: MongoDB Install
