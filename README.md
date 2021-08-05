@@ -1,6 +1,6 @@
 # Ahorro.js
-![CircleCI](https://img.shields.io/circleci/build/github/noobj/Ahorro.js)
-![Coveralls github](https://img.shields.io/coveralls/github/noobj/Ahorro.js?color=yellow)
+[![CircleCI](https://circleci.com/gh/noobj/express-ahorro/tree/main.svg?style=svg)](https://circleci.com/gh/noobj/express-ahorro/tree/main)
+[![Coverage Status](https://coveralls.io/repos/github/noobj/express-ahorro/badge.svg)](https://coveralls.io/github/noobj/express-ahorro)
 ![GitHub](https://img.shields.io/github/license/noobj/Ahorro.js?color=blue)
 <!-- TABLE OF CONTENTS -->
 <details open="open">

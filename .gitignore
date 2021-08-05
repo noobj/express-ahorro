@@ -7,3 +7,4 @@ node_modules/
 *.log
 credentials_for_cli.json
 token.json
+**/coverage/
