@@ -12,15 +12,16 @@ class EntryController {
     public async getAllEntries(request: requestWithUser, response: express.Response) {
         const timeStartInput = request.query?.timeStart as string;
         const timeEndInput = request.query?.timeEnd as string;
-        const categoriesExclude = request.query?.categoriesExclude?.toString().split(',') || [];
+        const categoriesExclude =
+            request.query?.categoriesExclude?.toString().split(',') || [];
         const entriesSortByDate = request.query?.entriesSortByDate === 'true';
 
         const timeStart = moment(timeStartInput, 'YYYY-MM-DD').isValid()
-            ? moment(timeStartInput, 'YYYY-MM-DD').toISOString()
-            : moment().add(-300, 'days').toISOString();
+            ? moment(timeStartInput).format('YYYY-MM-DD')
+            : moment().add(-300, 'days').format('YYYY-MM-DD');
         const timeEnd = moment(timeEndInput).isValid()
-            ? moment(timeEndInput).toISOString()
-            : moment().add(0, 'days').toISOString();
+            ? moment(timeEndInput).format('YYYY-MM-DD')
+            : moment().add(0, 'days').format('YYYY-MM-DD');
 
         const entries = await this.entryService.fetchEntries(
             timeStart,

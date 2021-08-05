@@ -20,6 +20,7 @@ describe('EntryController (e2e)', () => {
     let app: express.Application;
 
     beforeAll(async (done) => {
+        // DB initialize and seeding
         const { MONGO_USER, MONGO_PASSWORD, MONGO_TEST_PATH } = process.env;
         try {
             await mongoose.connect(
@@ -32,6 +33,7 @@ describe('EntryController (e2e)', () => {
 
         await Promise.all([EntrySeeder.run(), CategorySeeder.run()]);
 
+        // Server initialize
         const container = new Container();
         container.bind<EntryService>(EntryService).toSelf();
         const server = new InversifyExpressServer(container);
@@ -54,9 +56,6 @@ describe('EntryController (e2e)', () => {
                 entriesSortByDate: false
             })
             .end((err, res) => {
-                res.body.categories.map((category: any) => {
-                    console.log(category);
-                });
                 expect(res.status).toEqual(200);
                 expect(res.body.total).toEqual(10282);
                 expect(
