@@ -72,6 +72,14 @@
                 style="font-weight: bold"
                 >Yearly</b-button
             >
+            <b-button
+                size="sm"
+                pill
+                variant="danger"
+                @click="logout()"
+                style="font-weight: bold"
+                >Logout</b-button
+            >
         </div>
         <h1 class="text-3xl font-bold">Total: {{ total | toCurrency }}</h1>
         <h1 v-if="total == null">Loading...</h1>
@@ -105,6 +113,7 @@ import Category from './components/Category.vue';
 import Chart from './components/Chart.vue';
 import axios from 'axios';
 import Yearlychart from './components/YearlyChart.vue';
+import { fetchOrRefreshAuth } from './helper';
 
 export default {
     name: 'Main',
@@ -230,7 +239,7 @@ export default {
             );
             params.set('entriesSortByDate', this.entriesSortByDate);
 
-            fetch(`/entries?${params.toString()}`)
+            fetchOrRefreshAuth(`/entries?${params.toString()}`)
                 .then((res) => res.json())
                 .then((r) => {
                     this.categories = r.categories;
@@ -251,6 +260,11 @@ export default {
                         ]
                     };
                 });
+        },
+        logout() {
+            fetchOrRefreshAuth('/auth/logout', { method: 'POST' }).then((res) => {
+                if (res.status === 200) window.location.href = '/login.html';
+            });
         }
     },
     watch: {

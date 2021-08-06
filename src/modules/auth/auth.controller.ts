@@ -12,35 +12,19 @@ import TokenData from 'src/common/interfaces/tokenData.interface';
 import DataStoredInToken from 'src/common/interfaces/dataStoredInToken';
 import * as jwt from 'jsonwebtoken';
 import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
+import { controller, httpPost } from 'inversify-express-utils';
 
-class AuthenticationController implements Controller {
-    public path = '/auth';
+@controller('/auth')
+class AuthenticationController {
     public router = express.Router();
     private user = userModel;
 
-    constructor() {
-        this.initializeRoutes();
-    }
-
-    public initializeRoutes() {
-        this.router.post(
-            `${this.path}/register`,
-            validationMiddleware(CreateUserDto),
-            this.registration
-        );
-        this.router.post(
-            `${this.path}/login`,
-            validationMiddleware(LogInDto),
-            this.loggingIn
-        );
-        this.router.post(`${this.path}/logout`, jwtAuthMiddleware, this.loggingOut);
-    }
-
-    private registration = async (
+    @httpPost('/register', validationMiddleware(CreateUserDto))
+    public async registration(
         request: express.Request,
         response: express.Response,
         next: express.NextFunction
-    ) => {
+    ) {
         const userData: CreateUserDto = request.body;
         if (await this.user.findOne({ account: userData.account })) {
             next(new UserAccountExistedException(userData.account));
@@ -55,13 +39,14 @@ class AuthenticationController implements Controller {
             response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
             response.send(user);
         }
-    };
+    }
 
-    private loggingIn = async (
-        request: express.Request,
+    @httpPost('/login', validationMiddleware(LogInDto))
+    public async loggingIn(
+        request: any,
         response: express.Response,
         next: express.NextFunction
-    ) => {
+    ) {
         const logInData: LogInDto = request.body;
         const user = await this.user.findOne({ account: logInData.account });
         if (user) {
@@ -72,7 +57,8 @@ class AuthenticationController implements Controller {
             if (isPasswordMatching) {
                 user.password = undefined;
                 const tokenData = this.createToken(user);
-                response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+                // response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+                request.session.access_token = tokenData;
                 response.send(user);
             } else {
                 next(new WrongCredentialsException());
@@ -80,7 +66,7 @@ class AuthenticationController implements Controller {
         } else {
             next(new WrongCredentialsException());
         }
-    };
+    }
 
     private createToken(user: User): TokenData {
         const expiresIn = 60 * 60; // an hour
@@ -98,10 +84,11 @@ class AuthenticationController implements Controller {
         return `Authorization=${tokenData.token}; Path=/; HttpOnly; Max-Age=${tokenData.expiresIn}`;
     }
 
-    private loggingOut = (request: express.Request, response: express.Response) => {
-        response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
+    @httpPost('/logout', jwtAuthMiddleware)
+    public loggingOut(request: express.Request, response: express.Response) {
+        request.session.destroy((err) => {});
         response.send('logged out');
-    };
+    }
 }
 
 export default AuthenticationController;

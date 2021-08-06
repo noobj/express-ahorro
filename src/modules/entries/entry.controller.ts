@@ -3,12 +3,13 @@ import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 import moment from 'moment';
 import EntryService from './entry.service';
 import { controller, httpGet } from 'inversify-express-utils';
+import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
 
 @controller('/entries')
 class EntryController {
     constructor(private entryService: EntryService) {}
 
-    @httpGet('/')
+    @httpGet('/', jwtAuthMiddleware)
     public async getAllEntries(request: requestWithUser, response: express.Response) {
         const timeStartInput = request.query?.timeStart as string;
         const timeEndInput = request.query?.timeEnd as string;

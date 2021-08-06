@@ -13,6 +13,7 @@ function errorMiddleware(
         status,
         message
     });
+    next();
 }
 
 export default errorMiddleware;

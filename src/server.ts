@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import './modules/entries/entry.controller';
+import './modules/auth/auth.controller';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
@@ -10,11 +11,14 @@ import { validateEnv } from './common/helpers/utils';
 import EntryService from './modules/entries/entry.service';
 import express from 'express';
 import { join } from 'path';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 
 validateEnv();
 const container = new Container();
 container.bind<EntryService>(EntryService).toSelf();
 const server = new InversifyExpressServer(container);
+const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH } = process.env;
 
 server.setConfig((app) => {
     app.use((req, res, next) => {
@@ -22,19 +26,34 @@ server.setConfig((app) => {
         next();
     });
 
-    app.use(bodyParser.json());
-    app.use(cookieParser());
-    app.use(errorMiddleware);
+    app.use(
+        bodyParser.urlencoded({
+            extended: true
+        })
+    );
     app.use(express.static(join(__dirname, 'public')));
+    app.use(
+        session({
+            secret: process.env.COOKIE_SECRET,
+            resave: false,
+            saveUninitialized: false,
+            store: MongoStore.create({
+                mongoUrl: `mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`
+            }),
+            cookie: { maxAge: 600 * 1000 }
+        })
+    );
+});
+
+server.setErrorConfig((app) => {
+    app.use(errorMiddleware);
 });
 
 const port = +process.env.SERVER_PORT;
-const serverInstance = server.build();
-serverInstance.listen(port, () => {
+server.build().listen(port, () => {
     console.log(`App listening on the port ${port}`);
 });
 
-const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH } = process.env;
 mongoose.connect(
     `mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`,
     { useNewUrlParser: true, useUnifiedTopology: true },
