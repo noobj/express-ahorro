@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import './modules/entries/entry.controller';
 import './modules/auth/auth.controller';
 import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import errorMiddleware from './common/middlewares/error.middleware';
 import { InversifyExpressServer } from 'inversify-express-utils';

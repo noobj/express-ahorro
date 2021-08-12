@@ -1,6 +1,9 @@
 import entryModel from './entry.model';
 import EntryCatgegoryBundle from './entryCatgegoryBundle.interface';
 import { injectable } from 'inversify';
+import { promises as fsPromises } from 'fs';
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 
 type exclusiveConditin = {
     $ne: any[];
@@ -9,6 +12,11 @@ type exclusiveConditin = {
 type sortColumn = {
     date?: number;
     amount?: number;
+};
+
+type googleToken = {
+    access_token: string;
+    refresh_token: string;
 };
 
 @injectable()
@@ -71,6 +79,85 @@ class EntryService {
             }
         ]);
     };
+
+    public async syncEntry(token: googleToken, userId: number): Promise<string> {
+        const credentials = await fsPromises
+            .readFile('credentials_for_cli.json')
+            .then((res) => {
+                return JSON.parse(res.toString());
+            });
+
+        const { client_secret, client_id, redirect_uris } = credentials.installed;
+
+        const oAuth2Client = new google.auth.OAuth2(
+            client_id,
+            client_secret,
+            redirect_uris[0]
+        );
+        oAuth2Client.setCredentials(token);
+
+        const entries = await this.fetchAndReadEntries(oAuth2Client);
+
+        let countInserted = 0;
+        const hrstart = process.hrtime();
+        await Promise.all(
+            entries.map((v) => {
+                v._id = parseInt(v._id);
+                v.amount = parseInt(v.amount);
+                v.category = parseInt(v.category_id);
+                v.user = userId;
+                delete v.category_id;
+                delete v.routine_id;
+                return entryModel
+                    .updateOne({ _id: v._id }, { $set: v }, { upsert: true })
+                    .then(() => {
+                        countInserted++;
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            })
+        );
+        const hrend = process.hrtime(hrstart);
+        return `${countInserted} items have been inserted/updated using ${
+            hrend[1] / 1000000000
+        } seconds.`;
+    }
+
+    private async fetchAndReadEntries(oAuth2Client: OAuth2Client): Promise<any> {
+        const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+        // Find the newest ahorro backup file
+        const fileId: string = await drive.files
+            .list({
+                orderBy: 'createdTime desc',
+                pageSize: 1,
+                q: "name contains 'ahorro'"
+            })
+            .then((res) => res.data.files[0].id)
+            .catch((err) => {
+                throw err;
+            });
+
+        return await drive.files
+            .get(
+                {
+                    fileId,
+                    alt: 'media'
+                },
+                { responseType: 'stream' }
+            )
+            .then(async (res) => {
+                const chucks: Buffer[] = [];
+                return new Promise((resolve, reject) => {
+                    res.data.on('data', (chunk) => chucks.push(Buffer.from(chunk)));
+                    res.data.on('error', (err) => reject(err));
+                    res.data.on('end', () =>
+                        resolve(JSON.parse(Buffer.concat(chucks).toString('utf8')))
+                    );
+                });
+            })
+            .then((res: any) => res.tables[0].items);
+    }
 }
 
 export default EntryService;

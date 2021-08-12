@@ -2,13 +2,14 @@ import * as mongoose from 'mongoose';
 import Entry from './entry.interface';
 
 const entrySchema = new mongoose.Schema({
+    _id: Number,
     account_id: String,
     amount: Number,
     date: String,
     descr: String,
     user: {
         ref: 'User',
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.Number
     },
     category: {
         ref: 'Category',

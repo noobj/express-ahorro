@@ -2,8 +2,11 @@ import * as mongoose from 'mongoose';
 import User from './user.interface';
 
 const userSchema = new mongoose.Schema({
+    _id: Number,
     account: String,
-    password: String
+    password: String,
+    google_access_token: { type: String, required: false },
+    google_refresh_token: { type: String, required: false }
 });
 
 const tmpUserModel = mongoose.models !== {} ? mongoose.models?.User : null;

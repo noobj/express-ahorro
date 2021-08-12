@@ -2,7 +2,6 @@ import * as bcrypt from 'bcrypt';
 import * as express from 'express';
 import UserAccountExistedException from 'src/common/exceptions/UserAccountExistedException';
 import WrongCredentialsException from 'src/common/exceptions/WrongCredentialsException';
-import Controller from 'src/common/interfaces/basic.interface';
 import validationMiddleware from 'src/common/middlewares/validation.middleware';
 import CreateUserDto from '../users/user.dto';
 import userModel from 'src/modules/users/user.model';
@@ -29,9 +28,17 @@ class AuthenticationController {
         if (await this.user.findOne({ account: userData.account })) {
             next(new UserAccountExistedException(userData.account));
         } else {
+            const { _id } = await this.user
+                .find({}, { _id: 1 })
+                .sort({ _id: -1 })
+                .limit(1).then((res) => {
+                    return res[0];
+                });
+
             const hashedPassword = await bcrypt.hash(userData.password, 10);
             const user = await this.user.create({
                 ...userData,
+                _id: _id + 1,
                 password: hashedPassword
             });
             user.password = undefined;
@@ -56,6 +63,8 @@ class AuthenticationController {
             );
             if (isPasswordMatching) {
                 user.password = undefined;
+                user.google_access_token = undefined;
+                user.google_refresh_token = undefined;
                 const tokenData = this.createToken(user);
                 // response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
                 request.session.access_token = tokenData;

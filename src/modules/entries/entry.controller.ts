@@ -2,8 +2,9 @@ import * as express from 'express';
 import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 import moment from 'moment';
 import EntryService from './entry.service';
-import { controller, httpGet } from 'inversify-express-utils';
+import { controller, httpGet, httpPost } from 'inversify-express-utils';
 import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
+import { HttpException } from 'src/common/exceptions/HttpException';
 
 @controller('/entries')
 class EntryController {
@@ -68,6 +69,29 @@ class EntryController {
         };
 
         response.send(res);
+    }
+
+    @httpPost('/sync', jwtAuthMiddleware)
+    public async sync(
+        request: requestWithUser,
+        response: express.Response,
+        next: express.NextFunction
+    ) {
+        const access_token = request.user.google_access_token;
+        const refresh_token = request.user.google_refresh_token;
+
+        if (!access_token) next(new HttpException(418, 'No Google Access Token'));
+
+        const token = {
+            access_token,
+            refresh_token
+        };
+
+        const res = await this.entryService.syncEntry(token, request.user._id);
+
+        response.send({
+            res
+        });
     }
 }
 
