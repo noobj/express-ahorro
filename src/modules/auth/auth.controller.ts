@@ -6,21 +6,20 @@ import validationMiddleware from 'src/common/middlewares/validation.middleware';
 import CreateUserDto from '../users/user.dto';
 import userModel from 'src/modules/users/user.model';
 import LogInDto from './logIn.dto';
-import User from 'src/modules/users/user.interface';
-import TokenData from 'src/common/interfaces/tokenData.interface';
-import DataStoredInToken from 'src/common/interfaces/dataStoredInToken';
-import * as jwt from 'jsonwebtoken';
 import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
 import { controller, httpPost } from 'inversify-express-utils';
+import AuthService from './auth.service';
 
 @controller('/auth')
 class AuthenticationController {
     public router = express.Router();
     private user = userModel;
 
+    constructor(private authService: AuthService) {}
+
     @httpPost('/register', validationMiddleware(CreateUserDto))
     public async registration(
-        request: express.Request,
+        request: any,
         response: express.Response,
         next: express.NextFunction
     ) {
@@ -31,7 +30,8 @@ class AuthenticationController {
             const { _id } = await this.user
                 .find({}, { _id: 1 })
                 .sort({ _id: -1 })
-                .limit(1).then((res) => {
+                .limit(1)
+                .then((res) => {
                     return res[0];
                 });
 
@@ -42,8 +42,8 @@ class AuthenticationController {
                 password: hashedPassword
             });
             user.password = undefined;
-            const tokenData = this.createToken(user);
-            response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
+            request.session.access_token = this.authService.generateAccessToken(user);
+            request.session.refresh_token = this.authService.generateRefreshToken(user);
             response.send(user);
         }
     }
@@ -65,9 +65,9 @@ class AuthenticationController {
                 user.password = undefined;
                 user.google_access_token = undefined;
                 user.google_refresh_token = undefined;
-                const tokenData = this.createToken(user);
-                // response.setHeader('Set-Cookie', [this.createCookie(tokenData)]);
-                request.session.access_token = tokenData;
+                request.session.access_token = this.authService.generateAccessToken(user);
+                request.session.refresh_token =
+                    this.authService.generateRefreshToken(user);
                 response.send(user);
             } else {
                 next(new WrongCredentialsException());
@@ -75,22 +75,6 @@ class AuthenticationController {
         } else {
             next(new WrongCredentialsException());
         }
-    }
-
-    private createToken(user: User): TokenData {
-        const expiresIn = 60 * 60; // an hour
-        const secret = process.env.JWT_SECRET;
-        const dataStoredInToken: DataStoredInToken = {
-            _id: user._id
-        };
-        return {
-            expiresIn,
-            token: jwt.sign(dataStoredInToken, secret, { expiresIn })
-        };
-    }
-
-    private createCookie(tokenData: TokenData) {
-        return `Authorization=${tokenData.token}; Path=/; HttpOnly; Max-Age=${tokenData.expiresIn}`;
     }
 
     @httpPost('/logout', jwtAuthMiddleware)
