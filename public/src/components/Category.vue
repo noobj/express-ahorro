@@ -1,5 +1,5 @@
 <template>
-    <div @mouseover="active = true" @mouseleave="active = false">
+    <div>
         <div
             :style="{ color: category.color }"
             class="cat"
@@ -10,7 +10,6 @@
             <span>{{ category.sum | toCurrency }}</span>
             <input
                 title="Exclude this category"
-                v-show="active"
                 type="image"
                 src="../trashcan.png"
                 style="float: left"
@@ -42,8 +41,7 @@ export default {
     },
     data: () => {
         return {
-            toggle: false,
-            active: false
+            toggle: false
         };
     }
 };

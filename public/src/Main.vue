@@ -196,6 +196,7 @@ export default {
 
             this.skipQuery = true;
             this.activeCat = -1;
+            this.fetchEntries();
         },
         nextMonth() {
             this.categoriesExclude.clear();
@@ -216,6 +217,7 @@ export default {
             this.yearDisplay = moment(this.end).endOf('year').format('YYYY');
             this.skipQuery = true;
             this.activeCat = -1;
+            this.fetchEntries();
         },
         isSameMonth() {
             return moment(this.start).format('MM') === moment(this.end).format('MM');
@@ -268,12 +270,6 @@ export default {
         }
     },
     watch: {
-        end() {
-            this.fetchEntries();
-        },
-        start() {
-            this.fetchEntries();
-        },
         entriesSortByDate() {
             this.fetchEntries();
         }
