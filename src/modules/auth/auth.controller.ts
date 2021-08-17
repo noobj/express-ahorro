@@ -10,6 +10,7 @@ import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
 import { controller, httpPost } from 'inversify-express-utils';
 import AuthService from './auth.service';
 import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthenticationTokenException';
+import User from '../users/user.interface';
 
 @controller('/auth')
 class AuthenticationController {
@@ -146,7 +147,11 @@ class AuthenticationController {
     }
 
     @httpPost('/logout', jwtAuthMiddleware)
-    public loggingOut(request: express.Request, response: express.Response) {
+    public async loggingOut(
+        request: express.Request & { user: User },
+        response: express.Response
+    ) {
+        await this.user.updateOne({ _id: request.user._id }, { refresh_token: '' });
         response
             .cookie('access_token', '', { maxAge: 0 })
             .cookie('refresh_token', '', { maxAge: 0, path: '/auth/refresh' })
