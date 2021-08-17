@@ -5,6 +5,7 @@
   "author": "",
   "scripts": {
     "serve": "tsc-watch -p tsconfig.build.json --onSuccess \"node -r source-map-support/register -r ts-node/register/transpile-only -r tsconfig-paths/register .\"",
+    "serve:debug": "tsc-watch -p tsconfig.build.json --onSuccess \"node --inspect=0.0.0.0 -r source-map-support/register -r ts-node/register/transpile-only -r tsconfig-paths/register .\"",
     "build": "npm-run-all lint tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "clean": "rimraf dist/*",

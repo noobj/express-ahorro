@@ -16,6 +16,7 @@ import { join } from 'path';
 import EntrySeeder from 'src/database/seeders/entry.seeder';
 import CategorySeeder from 'src/database/seeders/category.seeder';
 import UserSeeder from 'src/database/seeders/user.seeder';
+import AuthService from 'src/modules/auth/auth.service';
 
 dotenv.config({ path: join(__dirname, '../.env.example') });
 
@@ -25,7 +26,8 @@ describe('EntryController (e2e)', () => {
 
     beforeAll(async (done) => {
         // DB initialize and seeding
-        const { MONGO_USER, MONGO_PASSWORD, MONGO_TEST_PATH } = process.env;
+        const { MONGO_USER, MONGO_PASSWORD, MONGO_TEST_PATH, COOKIE_SECRET } =
+            process.env;
         try {
             await mongoose.connect(
                 `mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_TEST_PATH}`,
@@ -40,13 +42,15 @@ describe('EntryController (e2e)', () => {
         // Server initialize
         const container = new Container();
         container.bind<EntryService>(EntryService).toSelf();
+        container.bind<AuthService>(AuthService).toSelf();
         const server = new InversifyExpressServer(container);
         server.setConfig((app) => {
             app.use(bodyParser.json());
             app.use(errorMiddleware);
+            app.use(cookieParser(COOKIE_SECRET));
             app.use(
                 session({
-                    secret: process.env.COOKIE_SECRET,
+                    secret: COOKIE_SECRET,
                     resave: false,
                     saveUninitialized: false,
                     cookie: { maxAge: 600 * 1000 }
@@ -70,7 +74,7 @@ describe('EntryController (e2e)', () => {
             .end(function (err, res) {
                 expect(res.status).toEqual(200);
                 // Save the cookie to use it later to retrieve the session
-                cookies = res.headers['set-cookie'].pop().split(';')[0];
+                cookies = res.headers['set-cookie'];
                 done();
             });
     });

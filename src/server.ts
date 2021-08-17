@@ -13,13 +13,14 @@ import express from 'express';
 import { join } from 'path';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import cookieParser from 'cookie-parser'
 
 validateEnv();
 const container = new Container();
 container.bind<EntryService>(EntryService).toSelf();
 container.bind<AuthService>(AuthService).toSelf();
 const server = new InversifyExpressServer(container);
-const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH } = process.env;
+const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH, COOKIE_SECRET } = process.env;
 
 server.setConfig((app) => {
     app.use((req, res, next) => {
@@ -33,9 +34,10 @@ server.setConfig((app) => {
         })
     );
     app.use(express.static(join(__dirname, 'public')));
+    app.use(cookieParser(COOKIE_SECRET));
     app.use(
         session({
-            secret: process.env.COOKIE_SECRET,
+            secret: COOKIE_SECRET,
             resave: false,
             saveUninitialized: false,
             store: MongoStore.create({

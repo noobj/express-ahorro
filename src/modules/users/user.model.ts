@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
     _id: Number,
     account: String,
     password: String,
+    refresh_token: { type: String, required: false },
     google_access_token: { type: String, required: false },
     google_refresh_token: { type: String, required: false }
 });
