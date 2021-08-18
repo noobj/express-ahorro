@@ -32,8 +32,8 @@
 
 ![Display](./others/display.png)
 
-* Fetch the backup file from your phone and insert into MongoDB.
-* Show the customized report and entries summary based on MKVN and GraphQL.
+* Fetch the backup file from Google drive and insert into MongoDB.
+* Show the customized report and entries summary based on MEVN stack with Typescript.
 * Makes bookkeeping report clean and useful.
 
 ### Built With

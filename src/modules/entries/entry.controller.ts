@@ -25,6 +25,7 @@ class EntryController {
             : moment().add(0, 'days').format('YYYY-MM-DD');
 
         const entries = await this.entryService.fetchEntries(
+            request.user,
             timeStart,
             timeEnd,
             categoriesExclude,

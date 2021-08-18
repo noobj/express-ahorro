@@ -23,12 +23,13 @@ type googleToken = {
 
 @injectable()
 class EntryService {
-    fetchEntries = async (
+    public async fetchEntries(
+        user: User,
         timeStart: string,
         timeEnd: string,
         categoriesExclude: string[],
         entriesSortByDate: boolean
-    ): Promise<EntryCatgegoryBundle[]> => {
+    ): Promise<EntryCatgegoryBundle[]> {
         let andCondition: exclusiveConditin[] = [];
         andCondition = andCondition.concat(
             categoriesExclude.map((x) => {
@@ -45,6 +46,7 @@ class EntryService {
                 $match: {
                     $expr: {
                         $and: [
+                            { $eq: ['$user', user._id] },
                             { $gte: ['$date', timeStart] },
                             { $lte: ['$date', timeEnd] },
                             ...andCondition
@@ -80,7 +82,7 @@ class EntryService {
                 }
             }
         ]);
-    };
+    }
 
     public async syncEntry(token: googleToken, userId: number): Promise<any> {
         const credentials = await fsPromises
