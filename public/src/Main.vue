@@ -80,6 +80,13 @@
                 style="font-weight: bold"
                 >Logout</b-button
             >
+            <input
+                title="Click to sync newest entries from Google drive."
+                type="image"
+                src="./google_drive.png"
+                @click="sync()"
+                class="absolute right-2 w-10 h-10"
+            />
         </div>
         <h1 class="text-3xl font-bold">Total: {{ total | toCurrency }}</h1>
         <h1 v-if="total == null">Loading...</h1>
@@ -111,7 +118,6 @@
 import moment from 'moment';
 import Category from './components/Category.vue';
 import Chart from './components/Chart.vue';
-import axios from 'axios';
 import Yearlychart from './components/YearlyChart.vue';
 import { fetchOrRefreshAuth } from './helper';
 
@@ -151,14 +157,13 @@ export default {
         };
     },
     methods: {
-        loadNewData() {
-            return axios
-                .get('https://192.168.56.101:3000/load')
+        sync() {
+            fetchOrRefreshAuth(`/entries/sync`, { method: 'POST' })
+                .then((res) => res.json())
                 .then((res) => {
-                    window.open(res.data);
-                })
-                .catch(() => {
-                    alert('something wrong.');
+                    if (res.status === 301) window.location.href = res.message;
+
+                    if (res.status === 200) alert(res.message);
                 });
         },
         randomColors(size) {

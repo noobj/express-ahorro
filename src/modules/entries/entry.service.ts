@@ -4,6 +4,8 @@ import { injectable } from 'inversify';
 import { promises as fsPromises } from 'fs';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
+import User from '../users/user.interface';
+import userModel from '../users/user.model';
 
 type exclusiveConditin = {
     $ne: any[];
@@ -80,23 +82,37 @@ class EntryService {
         ]);
     };
 
-    public async syncEntry(token: googleToken, userId: number): Promise<string> {
+    public async syncEntry(token: googleToken, userId: number): Promise<any> {
         const credentials = await fsPromises
-            .readFile('credentials_for_cli.json')
+            .readFile('credentials_for_web.json')
             .then((res) => {
                 return JSON.parse(res.toString());
             });
 
-        const { client_secret, client_id, redirect_uris } = credentials.installed;
+        const { client_secret, client_id, redirect_uris } = credentials.web;
 
         const oAuth2Client = new google.auth.OAuth2(
             client_id,
             client_secret,
             redirect_uris[0]
         );
-        oAuth2Client.setCredentials(token);
 
-        const entries = await this.fetchAndReadEntries(oAuth2Client);
+        let entries;
+        try {
+            oAuth2Client.setCredentials(token);
+            entries = await this.fetchAndReadEntries(oAuth2Client);
+        } catch (err) {
+            const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
+            const url = oAuth2Client.generateAuthUrl({
+                access_type: 'offline',
+                scope: SCOPES
+            });
+
+            return {
+                status: 301,
+                message: url
+            };
+        }
 
         let countInserted = 0;
         const hrstart = process.hrtime();
@@ -119,9 +135,14 @@ class EntryService {
             })
         );
         const hrend = process.hrtime(hrstart);
-        return `${countInserted} items have been inserted/updated using ${
+        const message = `${countInserted} items have been inserted/updated using ${
             hrend[1] / 1000000000
         } seconds.`;
+
+        return {
+            status: 200,
+            message: message
+        };
     }
 
     private async fetchAndReadEntries(oAuth2Client: OAuth2Client): Promise<any> {
@@ -157,6 +178,28 @@ class EntryService {
                 });
             })
             .then((res: any) => res.tables[0].items);
+    }
+
+    public async googleCallback(code: string, user: User): Promise<void> {
+        const credentials = await fsPromises
+            .readFile('credentials_for_web.json')
+            .then((res) => {
+                return JSON.parse(res.toString());
+            });
+        const { client_secret, client_id, redirect_uris } = credentials.web;
+        const oAuth2Client = new google.auth.OAuth2(
+            client_id,
+            client_secret,
+            redirect_uris[0]
+        );
+        const token = await oAuth2Client.getToken(code);
+        await userModel.updateOne(
+            { _id: user._id },
+            {
+                google_refresh_token: token.tokens.refresh_token,
+                google_access_token: token.tokens.access_token
+            }
+        );
     }
 }
 

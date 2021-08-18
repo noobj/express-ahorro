@@ -2,11 +2,12 @@ module.exports = {
     devServer: {
         proxy: {
             '/': {
-                target: 'http://localhost:3333',
+                target: 'https://localhost:3333',
                 changeOrigin: true
             }
         },
-        public: '0.0.0.0'
+        public: '0.0.0.0',
+        https: true
     },
     outputDir: 'dist/public',
     pages: {

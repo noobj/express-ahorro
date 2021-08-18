@@ -13,7 +13,9 @@ import express from 'express';
 import { join } from 'path';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import cookieParser from 'cookie-parser'
+import cookieParser from 'cookie-parser';
+import https from 'https';
+import { readFileSync } from 'fs';
 
 validateEnv();
 const container = new Container();
@@ -53,8 +55,20 @@ server.setErrorConfig((app) => {
 });
 
 const port = +process.env.SERVER_PORT;
-server.build().listen(port, () => {
-    console.log(`App listening on the port ${port}`);
+const app = server.build();
+
+const httpsConfig = {
+    key: readFileSync(join(__dirname, '../ahorroAuth-key.pem'), 'utf8').toString(),
+    cert: readFileSync(join(__dirname, '../ahorroAuth-cert.pem'), 'utf8').toString()
+};
+
+const httpsServer = https.createServer(httpsConfig, app);
+httpsServer.listen(port);
+httpsServer.on('listening', () => {
+    console.log(`HTTPS server connected on ${port}`);
+})
+httpsServer.on('error', (err) => {
+    console.error('HTTPS server FAIL: ', err, err && err.stack);
 });
 
 mongoose.connect(

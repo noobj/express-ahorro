@@ -4,7 +4,6 @@ import moment from 'moment';
 import EntryService from './entry.service';
 import { controller, httpGet, httpPost } from 'inversify-express-utils';
 import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
-import { HttpException } from 'src/common/exceptions/HttpException';
 
 @controller('/entries')
 class EntryController {
@@ -80,8 +79,6 @@ class EntryController {
         const access_token = request.user.google_access_token;
         const refresh_token = request.user.google_refresh_token;
 
-        if (!access_token) next(new HttpException(418, 'No Google Access Token'));
-
         const token = {
             access_token,
             refresh_token
@@ -89,9 +86,20 @@ class EntryController {
 
         const res = await this.entryService.syncEntry(token, request.user._id);
 
-        response.send({
-            res
-        });
+        response.status(res.status).send(res);
+    }
+
+    @httpGet('/sync/callback', jwtAuthMiddleware)
+    public async handleCallback(
+        request: requestWithUser,
+        response: express.Response,
+        next: express.NextFunction
+    ) {
+        const code = request.query.code.toString();
+        const user = request.user;
+        await this.entryService.googleCallback(code, user);
+
+        response.redirect('/');
     }
 }
 
