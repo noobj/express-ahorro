@@ -99,6 +99,44 @@ describe('EntryController (e2e)', () => {
             });
     });
 
+    it('/POST auth/refresh', (done) => {
+        return request(app)
+            .post('/auth/refresh')
+            .set('Cookie', cookies)
+            .end(function (err, res) {
+                expect(res.status).toEqual(200);
+                // Save the cookie to use it later to retrieve the session
+                cookies = res.headers['set-cookie'];
+                done();
+            });
+    });
+
+    it('/POST auth/logout', (done) => {
+        return request(app)
+            .post('/auth/logout')
+            .set('Cookie', cookies)
+            .end(function (err, res) {
+                expect(res.status).toEqual(200);
+                // Save the cookie to use it later to retrieve the session
+                cookies = res.headers['set-cookie'];
+                done();
+            });
+    });
+
+    it('/Get entries after logout', (done) => {
+        return request(app)
+            .get('/entries')
+            .set('Cookie', cookies)
+            .query({
+                timeStart: '2021-07-01',
+                timeEnd: '2021-07-31'
+            })
+            .end((err, res) => {
+                expect(res.status).toEqual(401);
+                done();
+            });
+    });
+
     afterAll(async () => {
         await mongoose.disconnect();
     });
