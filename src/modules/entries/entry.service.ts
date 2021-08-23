@@ -107,7 +107,8 @@ class EntryService {
             const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
             const url = oAuth2Client.generateAuthUrl({
                 access_type: 'offline',
-                scope: SCOPES
+                scope: SCOPES,
+                prompt: 'consent'
             });
 
             return {
@@ -195,6 +196,7 @@ class EntryService {
             redirect_uris[0]
         );
         const token = await oAuth2Client.getToken(code);
+
         await userModel.updateOne(
             { _id: user._id },
             {
