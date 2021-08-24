@@ -42,6 +42,43 @@ class AuthService {
         if (user.refresh_token != refreshToken) user = null;
         return user;
     }
+
+    public hideUserInfo(user: User): Partial<User> {
+        user.password = undefined;
+        user.refresh_token = undefined;
+        user.google_access_token = undefined;
+        user.google_refresh_token = undefined;
+        user.google_id = undefined;
+
+        return user;
+    }
+
+    public async createNewGoogleUser(googleId: string): Promise<User | null> {
+        // get the last _id
+        const { _id } = await userModel
+            .find({}, { _id: 1 })
+            .sort({ _id: -1 })
+            .limit(1)
+            .then((res) => {
+                return res[0];
+            });
+
+        const userData = {
+            account: googleId,
+            google_id: googleId
+        };
+
+        const userForInsert = {
+            ...userData,
+            _id: _id + 1
+        };
+
+        const user = await userModel.create({
+            ...userForInsert
+        });
+
+        return user;
+    }
 }
 
 export default AuthService;

@@ -85,29 +85,20 @@ class EntryService {
     }
 
     public async syncEntry(token: googleToken, userId: number): Promise<any> {
-        const credentials = await fsPromises
-            .readFile('credentials_for_web.json')
-            .then((res) => {
-                return JSON.parse(res.toString());
-            });
+        const clientId = process.env.CLIENT_ID;
+        const clientSecret = process.env.CLIENT_SECRET;
+        const redirectUrl = 'https://ahorrojs.io:3333/entries/sync/callback';
 
-        const { client_secret, client_id, redirect_uris } = credentials.web;
-
-        const oAuth2Client = new google.auth.OAuth2(
-            client_id,
-            client_secret,
-            redirect_uris[0]
-        );
+        const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
         let entries;
         try {
             oAuth2Client.setCredentials(token);
             entries = await this.fetchAndReadEntries(oAuth2Client);
         } catch (err) {
-            const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
             const url = oAuth2Client.generateAuthUrl({
                 access_type: 'offline',
-                scope: SCOPES,
+                scope: ['https://www.googleapis.com/auth/drive.readonly'],
                 prompt: 'consent'
             });
 
@@ -184,17 +175,11 @@ class EntryService {
     }
 
     public async googleCallback(code: string, user: User): Promise<void> {
-        const credentials = await fsPromises
-            .readFile('credentials_for_web.json')
-            .then((res) => {
-                return JSON.parse(res.toString());
-            });
-        const { client_secret, client_id, redirect_uris } = credentials.web;
-        const oAuth2Client = new google.auth.OAuth2(
-            client_id,
-            client_secret,
-            redirect_uris[0]
-        );
+        const clientId = process.env.CLIENT_ID;
+        const clientSecret = process.env.CLIENT_SECRET;
+        const redirectUrl = 'https://ahorrojs.io:3333/entries/sync/callback';
+
+        const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
         const token = await oAuth2Client.getToken(code);
 
         await userModel.updateOne(

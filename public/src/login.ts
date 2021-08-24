@@ -23,22 +23,20 @@ document.querySelector('.login-form').addEventListener('submit', (e) => {
         });
 });
 
-// // Check if access token or refresh token is still valid
-// fetch(`/summaries`, {
-//     method: 'GET',
-//     credentials: 'include',
-//     headers: {
-//         'Content-Type': 'application/json',
-//         Accept: 'application/json'
-//     }
-// }).then(async function (response) {
-//     if (response.status != 401) window.location.href = '/';
-
-//     return await fetch('/refresh', {
-//         credentials: 'include'
-//     }).then((res) => {
-//         if (res.status == 200) {
-//             window.location.href = '/';
-//         }
-//     });
-// });
+document.querySelector('#loginGoogle').addEventListener('click', (e) => {
+    e.preventDefault();
+    const url = '/auth/google/login';
+    fetch(url, {
+        method: 'POST',
+        credentials: 'include'
+    })
+        .then(async (res) => {
+            const body = await res.json();
+            const redirUrl = body.message;
+            if (res.status !== 200) throw new Error(body.message);
+            window.location.href = redirUrl;
+        })
+        .catch((err) => {
+            alert(err.message);
+        });
+});

@@ -4,8 +4,9 @@ import User from './user.interface';
 const userSchema = new mongoose.Schema({
     _id: Number,
     account: String,
-    password: String,
+    password: { type: String, required: false },
     refresh_token: { type: String, required: false },
+    google_id: { type: String, required: false },
     google_access_token: { type: String, required: false },
     google_refresh_token: { type: String, required: false }
 });
