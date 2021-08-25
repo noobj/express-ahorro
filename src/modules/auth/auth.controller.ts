@@ -12,6 +12,7 @@ import AuthService from './auth.service';
 import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthenticationTokenException';
 import User from '../users/user.interface';
 import { google } from 'googleapis';
+import UserNotFoundException from 'src/common/exceptions/UserNotFoundException';
 
 @controller('/auth')
 class AuthenticationController {
@@ -116,7 +117,9 @@ class AuthenticationController {
         });
         const userInfo = await oauth2.userinfo.get();
         const { id: googleId } = userInfo.data;
-        let user: User = await userModel.findOne({ google_id: googleId });
+        const accountPrefix = 'Goo';
+
+        let user: User = await userModel.findOne({ account: accountPrefix + googleId });
 
         // redirect new user to register page
         if (!user) user = await this.authService.createNewGoogleUser(googleId);
@@ -159,7 +162,7 @@ class AuthenticationController {
     ) {
         const logInData: LogInDto = request.body;
         const user = await this.user.findOne({ account: logInData.account });
-        if (user) {
+        if (user && user.password) {
             const isPasswordMatching = await bcrypt.compare(
                 logInData.password,
                 user.password
@@ -190,7 +193,7 @@ class AuthenticationController {
                 next(new WrongCredentialsException());
             }
         } else {
-            next(new WrongCredentialsException());
+            next(new UserNotFoundException());
         }
     }
 

@@ -48,7 +48,6 @@ class AuthService {
         user.refresh_token = undefined;
         user.google_access_token = undefined;
         user.google_refresh_token = undefined;
-        user.google_id = undefined;
 
         return user;
     }
@@ -64,8 +63,7 @@ class AuthService {
             });
 
         const userData = {
-            account: googleId,
-            google_id: googleId
+            account: 'Goo' + googleId
         };
 
         const userForInsert = {

@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
     account: String,
     password: { type: String, required: false },
     refresh_token: { type: String, required: false },
-    google_id: { type: String, required: false },
     google_access_token: { type: String, required: false },
     google_refresh_token: { type: String, required: false }
 });

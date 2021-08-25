@@ -4,7 +4,6 @@ interface User {
     password?: string;
     google_access_token?: string;
     google_refresh_token?: string;
-    google_id?: string;
     refresh_token?: string;
 }
 

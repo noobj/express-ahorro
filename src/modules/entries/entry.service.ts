@@ -1,7 +1,6 @@
 import entryModel from './entry.model';
 import EntryCatgegoryBundle from './entryCatgegoryBundle.interface';
 import { injectable } from 'inversify';
-import { promises as fsPromises } from 'fs';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../users/user.interface';
@@ -110,16 +109,26 @@ class EntryService {
 
         let countInserted = 0;
         const hrstart = process.hrtime();
+        // get the last _id
+        let { _id } = await entryModel
+            .find({}, { _id: 1 })
+            .sort({ _id: -1 })
+            .limit(1)
+            .then((res) => {
+                return res[0] || { _id: 0 };
+            });
+
+        await entryModel.deleteMany({ user: userId });
         await Promise.all(
             entries.map((v) => {
-                v._id = parseInt(v._id);
+                v._id = ++_id;
                 v.amount = parseInt(v.amount);
                 v.category = parseInt(v.category_id);
                 v.user = userId;
                 delete v.category_id;
                 delete v.routine_id;
                 return entryModel
-                    .updateOne({ _id: v._id }, { $set: v }, { upsert: true })
+                    .create(v)
                     .then(() => {
                         countInserted++;
                     })
