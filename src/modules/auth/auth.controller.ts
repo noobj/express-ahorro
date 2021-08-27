@@ -7,12 +7,12 @@ import CreateUserDto from '../users/user.dto';
 import userModel from 'src/modules/users/user.model';
 import LogInDto from './logIn.dto';
 import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
-import { controller, httpGet, httpPost } from 'inversify-express-utils';
+import { controller, httpGet, httpPost, requestParam } from 'inversify-express-utils';
 import AuthService from './auth.service';
 import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthenticationTokenException';
 import User from '../users/user.interface';
-import { google } from 'googleapis';
 import UserNotFoundException from 'src/common/exceptions/UserNotFoundException';
+import { ThirdPartyfactory } from './third_party/thirdParty.factory';
 
 @controller('/auth')
 class AuthenticationController {
@@ -71,22 +71,15 @@ class AuthenticationController {
         }
     }
 
-    @httpPost('/google/login')
-    public async googleLogin(
+    @httpPost('/login/:type')
+    public thirdPartyLogin(
+        @requestParam('type') type: string,
         request: any,
         response: express.Response,
         next: express.NextFunction
     ) {
-        const clientId = process.env.CLIENT_ID;
-        const clientSecret = process.env.CLIENT_SECRET;
-        const redirectUrl = 'https://ahorrojs.io:3333/auth/google/callback';
-
-        const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
-        const url = oAuth2Client.generateAuthUrl({
-            access_type: 'offline',
-            scope: ['profile', 'email', 'https://www.googleapis.com/auth/drive.readonly'],
-            prompt: 'consent'
-        });
+        const thirdPartyinstance = ThirdPartyfactory.getThirdPartyServiceInstance(type);
+        const url = thirdPartyinstance.generateUrl();
 
         return {
             status: 301,
@@ -94,43 +87,21 @@ class AuthenticationController {
         };
     }
 
-    @httpGet('/google/callback')
-    public async googleLoginCallback(
+    @httpGet('/callback/:type')
+    public async thirdPartyLoginCallback(
+        @requestParam('type') type: string,
         request: any,
         response: express.Response,
         next: express.NextFunction
     ): Promise<void> {
-        const code = request?.query?.code?.toString();
-        const error = request?.query?.error?.toString();
-        if (error != undefined) response.redirect('/login.html');
-
-        const clientId = process.env.CLIENT_ID;
-        const clientSecret = process.env.CLIENT_SECRET;
-        const redirectUrl = 'https://ahorrojs.io:3333/auth/google/callback';
-
-        const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
-        const token = await oAuth2Client.getToken(code);
-        oAuth2Client.setCredentials({ access_token: token.tokens.access_token });
-        const oauth2 = google.oauth2({
-            auth: oAuth2Client,
-            version: 'v2'
-        });
-        const userInfo = await oauth2.userinfo.get();
-        const { id: googleId } = userInfo.data;
-        const accountPrefix = 'Goo';
-
-        let user: User = await userModel.findOne({ account: accountPrefix + googleId });
-
-        // redirect new user to register page
-        if (!user) user = await this.authService.createNewGoogleUser(googleId);
-
-        await userModel.updateOne(
-            { _id: user._id },
-            {
-                google_refresh_token: token.tokens.refresh_token,
-                google_access_token: token.tokens.access_token
-            }
-        );
+        let user;
+        const thirdPartyinstance = ThirdPartyfactory.getThirdPartyServiceInstance(type);
+        try {
+            user = await thirdPartyinstance.handleCallback(request);
+        } catch (err) {
+            response.redirect('/login.html');
+            return;
+        }
 
         const accessToken = this.authService.generateAccessToken(user);
         const refreshToken = this.authService.generateRefreshToken(user);

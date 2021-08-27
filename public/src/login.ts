@@ -25,7 +25,7 @@ document.querySelector('.login-form').addEventListener('submit', (e) => {
 
 document.querySelector('#loginGoogle').addEventListener('click', (e) => {
     e.preventDefault();
-    const url = '/auth/google/login';
+    const url = '/auth/login/google';
     fetch(url, {
         method: 'POST',
         credentials: 'include'
