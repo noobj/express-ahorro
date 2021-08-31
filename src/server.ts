@@ -5,10 +5,8 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import errorMiddleware from './common/middlewares/error.middleware';
 import { InversifyExpressServer } from 'inversify-express-utils';
-import { Container } from 'inversify';
+import { container } from './inversify.config';
 import { validateEnv } from './common/helpers/utils';
-import EntryService from './modules/entries/entry.service';
-import AuthService from './modules/auth/auth.service';
 import express from 'express';
 import { join } from 'path';
 import session from 'express-session';
@@ -18,9 +16,6 @@ import https from 'https';
 import { readFileSync } from 'fs';
 
 validateEnv();
-const container = new Container();
-container.bind<EntryService>(EntryService).toSelf();
-container.bind<AuthService>(AuthService).toSelf();
 const server = new InversifyExpressServer(container);
 const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH, COOKIE_SECRET } = process.env;
 

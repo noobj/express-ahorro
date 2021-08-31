@@ -6,8 +6,7 @@ import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import errorMiddleware from 'src/common/middlewares/error.middleware';
 import { InversifyExpressServer } from 'inversify-express-utils';
-import { Container } from 'inversify';
-import EntryService from 'src/modules/entries/entry.service';
+import { container } from 'src/inversify.config';
 import express from 'express';
 import session from 'express-session';
 import request from 'supertest';
@@ -16,7 +15,6 @@ import { join } from 'path';
 import EntrySeeder from 'src/database/seeders/entry.seeder';
 import CategorySeeder from 'src/database/seeders/category.seeder';
 import UserSeeder from 'src/database/seeders/user.seeder';
-import AuthService from 'src/modules/auth/auth.service';
 
 dotenv.config({ path: join(__dirname, '../.env.example') });
 
@@ -39,10 +37,6 @@ describe('EntryController (e2e)', () => {
 
         await Promise.all([EntrySeeder.run(), CategorySeeder.run(), UserSeeder.run()]);
 
-        // Server initialize
-        const container = new Container();
-        container.bind<EntryService>(EntryService).toSelf();
-        container.bind<AuthService>(AuthService).toSelf();
         const server = new InversifyExpressServer(container);
         server.setConfig((app) => {
             app.use(bodyParser.json());
