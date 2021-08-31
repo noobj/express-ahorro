@@ -7,6 +7,7 @@ const serviceMap = {
     null: NullLoginService
 };
 
+export const ServiceKeys = Object.keys(serviceMap);
 type Keys = keyof typeof serviceMap;
 
 type serviceTypes = typeof serviceMap[Keys];
@@ -16,6 +17,6 @@ export class ThirdPartyfactory {
     static authService: AuthService = new AuthService();
 
     static getThirdPartyServiceInstance(type: string): ExtractInstanceType<serviceTypes> {
-        return new serviceMap[type]();
+        return new serviceMap[type](this.authService);
     }
 }

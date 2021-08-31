@@ -1,0 +1,11 @@
+.cache/
+.vscode/
+dist/
+node_modules/
+.env
+.DS_Store
+*.log
+credentials_for_cli.json
+token.json
+**/coverage/
+*.pem

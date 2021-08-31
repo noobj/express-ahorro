@@ -12,7 +12,7 @@ import AuthService from './auth.service';
 import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthenticationTokenException';
 import User from '../users/user.interface';
 import UserNotFoundException from 'src/common/exceptions/UserNotFoundException';
-import { ThirdPartyfactory } from './third_party/thirdParty.factory';
+import { ThirdPartyfactory, ServiceKeys } from './third_party/thirdParty.factory';
 
 @controller('/auth')
 class AuthenticationController {
@@ -73,12 +73,14 @@ class AuthenticationController {
 
     @httpPost('/login/:type')
     public thirdPartyLogin(
-        @requestParam('type') type: string,
+        @requestParam('type') serviceType: string,
         request: any,
         response: express.Response,
         next: express.NextFunction
     ) {
-        const thirdPartyinstance = ThirdPartyfactory.getThirdPartyServiceInstance(type);
+        serviceType = ServiceKeys.includes(serviceType) ? serviceType : 'null';
+        const thirdPartyinstance =
+            ThirdPartyfactory.getThirdPartyServiceInstance(serviceType);
         const url = thirdPartyinstance.generateUrl();
 
         return {
@@ -89,14 +91,16 @@ class AuthenticationController {
 
     @httpGet('/callback/:type')
     public async thirdPartyLoginCallback(
-        @requestParam('type') type: string,
+        @requestParam('type') serviceType: string,
         request: any,
         response: express.Response,
         next: express.NextFunction
     ): Promise<void> {
         let user;
-        const thirdPartyinstance = ThirdPartyfactory.getThirdPartyServiceInstance(type);
         try {
+            serviceType = ServiceKeys.includes(serviceType) ? serviceType : 'null';
+            const thirdPartyinstance =
+                ThirdPartyfactory.getThirdPartyServiceInstance(serviceType);
             user = await thirdPartyinstance.handleCallback(request);
         } catch (err) {
             response.redirect('/login.html');
@@ -146,6 +150,7 @@ class AuthenticationController {
                     { _id: user._id },
                     { refresh_token: refreshToken.token }
                 );
+
                 response
                     .status(200)
                     .cookie('access_token', accessToken.token, {
