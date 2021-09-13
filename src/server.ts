@@ -9,8 +9,6 @@ import { container } from './inversify.config';
 import { validateEnv } from './common/helpers/utils';
 import express from 'express';
 import { join } from 'path';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
 import cookieParser from 'cookie-parser';
 import https from 'https';
 import { readFileSync } from 'fs';
@@ -32,17 +30,6 @@ server.setConfig((app) => {
     );
     app.use(express.static(join(__dirname, 'public')));
     app.use(cookieParser(COOKIE_SECRET));
-    app.use(
-        session({
-            secret: COOKIE_SECRET,
-            resave: false,
-            saveUninitialized: false,
-            store: MongoStore.create({
-                mongoUrl: `mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`
-            }),
-            cookie: { maxAge: 600 * 1000 }
-        })
-    );
 });
 
 server.setErrorConfig((app) => {
@@ -67,7 +54,7 @@ httpsServer.on('error', (err) => {
 });
 
 mongoose.connect(
-    `mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`,
+    `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`,
     { useNewUrlParser: true, useUnifiedTopology: true },
     (err) => {
         if (!err) {

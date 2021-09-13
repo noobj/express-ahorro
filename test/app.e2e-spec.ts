@@ -8,7 +8,6 @@ import errorMiddleware from 'src/common/middlewares/error.middleware';
 import { InversifyExpressServer } from 'inversify-express-utils';
 import { container } from 'src/inversify.config';
 import express from 'express';
-import session from 'express-session';
 import request from 'supertest';
 import dotenv from 'dotenv';
 import { join } from 'path';
@@ -42,14 +41,6 @@ describe('EntryController (e2e)', () => {
             app.use(bodyParser.json());
             app.use(errorMiddleware);
             app.use(cookieParser(COOKIE_SECRET));
-            app.use(
-                session({
-                    secret: COOKIE_SECRET,
-                    resave: false,
-                    saveUninitialized: false,
-                    cookie: { maxAge: 600 * 1000 }
-                })
-            );
         });
 
         app = server.build();
