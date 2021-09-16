@@ -1,11 +1,13 @@
 import './app.css';
+const baseUrl = process.env.VUE_APP_BACKEND_API_BASE_URL;
 
 document.querySelector('.login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const url = '/auth/login';
     const account: any = document.querySelector('form.login-form [name=account]');
     const password: any = document.querySelector('form.login-form [name=password]');
-    fetch(url, {
+
+    fetch(`${baseUrl}${url}`, {
         method: 'POST',
         credentials: 'include',
         body: new URLSearchParams({
@@ -14,6 +16,7 @@ document.querySelector('.login-form').addEventListener('submit', (e) => {
         })
     })
         .then(async (res) => {
+            console.log(res);
             const body = await res.json();
             if (res.status !== 200) throw new Error(body.message);
             window.location.href = '/';
@@ -26,7 +29,7 @@ document.querySelector('.login-form').addEventListener('submit', (e) => {
 document.querySelector('#loginGoogle').addEventListener('click', (e) => {
     e.preventDefault();
     const url = '/auth/login/google';
-    fetch(url, {
+    fetch(`${baseUrl}${url}`, {
         method: 'POST',
         credentials: 'include'
     })

@@ -7,11 +7,18 @@ import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import serverless from 'serverless-http';
 import routes from 'src/routes/api';
+import cors from 'cors';
 
 validateEnv();
 const app = express();
 const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH, COOKIE_SECRET } = process.env;
 
+app.use(
+    cors({
+        origin: 'https://192.168.56.101:3001',
+        credentials: true
+    })
+);
 app.use((req, res, next) => {
     console.log(req.url);
     next();

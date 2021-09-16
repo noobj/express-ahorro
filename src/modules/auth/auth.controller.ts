@@ -78,7 +78,6 @@ class AuthenticationController {
         const url = thirdPartyinstance.generateUrl();
 
         response.send({
-            status: 301,
             message: url
         });
     };
@@ -96,10 +95,7 @@ class AuthenticationController {
                 ThirdPartyfactory.getThirdPartyServiceInstance(serviceType);
             user = await thirdPartyinstance.handleCallback(request);
         } catch (err) {
-            response.send({
-                status: 301,
-                message: 'failed'
-            });
+            response.redirect(`${process.env.HOST_URL}/login.html`);
             return;
         }
 
@@ -114,15 +110,19 @@ class AuthenticationController {
             .cookie('access_token', accessToken.token, {
                 expires: new Date(Date.now() + accessToken.expiresIn * 1000),
                 httpOnly: true,
-                signed: true
+                signed: true,
+                sameSite: 'none',
+                secure: true
             })
             .cookie('refresh_token', refreshToken.token, {
                 expires: new Date(Date.now() + refreshToken.expiresIn * 1000),
                 httpOnly: true,
                 signed: true,
+                sameSite: 'none',
+                secure: true,
                 path: '/auth/refresh'
             });
-        response.send('login');
+        response.redirect(process.env.HOST_URL);
     };
 
     public loggingIn = async (
@@ -151,13 +151,17 @@ class AuthenticationController {
                     .cookie('access_token', accessToken.token, {
                         expires: new Date(Date.now() + accessToken.expiresIn * 1000),
                         httpOnly: true,
-                        signed: true
+                        signed: true,
+                        sameSite: 'none',
+                        secure: true
                     })
                     .cookie('refresh_token', refreshToken.token, {
                         expires: new Date(Date.now() + refreshToken.expiresIn * 1000),
                         httpOnly: true,
                         signed: true,
-                        path: '/auth/refresh'
+                        path: '/auth/refresh',
+                        sameSite: 'none',
+                        secure: true
                     });
                 response.send(userForReturn);
             } else {
@@ -186,7 +190,9 @@ class AuthenticationController {
                         .cookie('access_token', accessToken.token, {
                             expires: new Date(Date.now() + accessToken.expiresIn * 1000),
                             httpOnly: true,
-                            signed: true
+                            signed: true,
+                            sameSite: 'none',
+                            secure: true
                         })
                         .send();
                 } else next(new WrongAuthenticationTokenException());
@@ -204,8 +210,13 @@ class AuthenticationController {
     ) => {
         await this.user.updateOne({ _id: request.user._id }, { refresh_token: '' });
         response
-            .cookie('access_token', '', { maxAge: 0 })
-            .cookie('refresh_token', '', { maxAge: 0, path: '/auth/refresh' })
+            .cookie('access_token', '', { maxAge: 0, sameSite: 'none', secure: true })
+            .cookie('refresh_token', '', {
+                maxAge: 0,
+                sameSite: 'none',
+                secure: true,
+                path: '/auth/refresh'
+            })
             .send('logged out');
     };
 }
