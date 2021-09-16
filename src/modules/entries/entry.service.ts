@@ -1,6 +1,5 @@
 import entryModel from './entry.model';
 import EntryCatgegoryBundle from './entryCatgegoryBundle.interface';
-import { injectable } from 'inversify';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../users/user.interface';
@@ -20,7 +19,6 @@ type googleToken = {
     refresh_token: string;
 };
 
-@injectable()
 class EntryService {
     public async fetchEntries(
         user: User,
@@ -84,8 +82,8 @@ class EntryService {
     }
 
     public async syncEntry(token: googleToken, userId: number): Promise<any> {
-        const clientId = process.env.CLIENT_ID;
-        const clientSecret = process.env.CLIENT_SECRET;
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
         const redirectUrl = 'https://ahorrojs.io:3333/entries/sync/callback';
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
@@ -184,8 +182,8 @@ class EntryService {
     }
 
     public async googleCallback(code: string, user: User): Promise<void> {
-        const clientId = process.env.CLIENT_ID;
-        const clientSecret = process.env.CLIENT_SECRET;
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
         const redirectUrl = 'https://ahorrojs.io:3333/entries/sync/callback';
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);

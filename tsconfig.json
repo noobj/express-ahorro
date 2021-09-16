@@ -9,14 +9,26 @@
         "outDir": "dist",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "removeComments": true,
         "incremental": true,
         "diagnostics": true,
         "skipLibCheck": true,
-        "types": ["reflect-metadata", "jest"],
+        "types": ["node", "reflect-metadata", "jest"],
         "baseUrl": ".",
         "lib": ["es6"],
         "paths": {
             "src/*": ["src/*"]
-        }
+        },
+    },
+    "include": ["src/**/*.ts", "serverless.ts"],
+    "exclude": [
+        "node_modules/**/*",
+        ".serverless/**/*",
+        ".webpack/**/*",
+        "_warmup/**/*",
+        ".vscode/**/*"
+    ],
+    "ts-node": {
+        "require": ["tsconfig-paths/register"]
     }
 }
