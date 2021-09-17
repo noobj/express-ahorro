@@ -2,6 +2,7 @@ import * as express from 'express';
 import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 import moment from 'moment';
 import EntryService from './entry.service';
+import HttpException from 'src/common/exceptions/HttpException';
 
 class EntryController {
     constructor(private entryService: EntryService) {}
@@ -82,10 +83,13 @@ class EntryController {
             access_token,
             refresh_token
         };
+        try {
+            const res = await this.entryService.syncEntry(token, request.user._id);
 
-        const res = await this.entryService.syncEntry(token, request.user._id);
-
-        response.status(res.status).send(res);
+            response.status(res.status).send(res);
+        } catch (err) {
+            next(new HttpException(408, 'sync with third party failed'));
+        }
     };
 
     public handleCallback = async (
@@ -97,7 +101,7 @@ class EntryController {
         const user = request.user;
         await this.entryService.googleCallback(code, user);
 
-        response.redirect('/');
+        response.redirect(process.env.HOST_URL);
     };
 }
 

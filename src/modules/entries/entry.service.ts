@@ -84,7 +84,7 @@ class EntryService {
     public async syncEntry(token: googleToken, userId: number): Promise<any> {
         const clientId = process.env.GOOGLE_CLIENT_ID;
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-        const redirectUrl = 'https://ahorrojs.io:3333/entries/sync/callback';
+        const redirectUrl = `${process.env.VUE_APP_BACKEND_API_BASE_URL}/entries/sync/callback`;
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
@@ -184,7 +184,7 @@ class EntryService {
     public async googleCallback(code: string, user: User): Promise<void> {
         const clientId = process.env.GOOGLE_CLIENT_ID;
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-        const redirectUrl = 'https://ahorrojs.io:3333/entries/sync/callback';
+        const redirectUrl = `${process.env.VUE_APP_BACKEND_API_BASE_URL}/entries/sync/callback`;
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
         const token = await oAuth2Client.getToken(code);

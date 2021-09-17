@@ -120,7 +120,7 @@ class AuthenticationController {
                 signed: true,
                 sameSite: 'none',
                 secure: true,
-                path: '/auth/refresh'
+                path: '/dev/auth/refresh'
             });
         response.redirect(process.env.HOST_URL);
     };
@@ -159,9 +159,9 @@ class AuthenticationController {
                         expires: new Date(Date.now() + refreshToken.expiresIn * 1000),
                         httpOnly: true,
                         signed: true,
-                        path: '/auth/refresh',
                         sameSite: 'none',
-                        secure: true
+                        secure: true,
+                        path: '/dev/auth/refresh',
                     });
                 response.send(userForReturn);
             } else {
