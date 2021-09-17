@@ -15,7 +15,7 @@ const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH, COOKIE_SECRET } = process.env;
 
 app.use(
     cors({
-        origin: 'https://192.168.56.101:3001',
+        origin: ['https://192.168.56.101:3001', 'https://ahorrojs.netlify.app'],
         credentials: true
     })
 );
