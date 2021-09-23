@@ -65,7 +65,7 @@ class EntryController {
         // wrapping the response
         const res = {
             categories: result,
-            total: total
+            total
         };
 
         response.send(res);

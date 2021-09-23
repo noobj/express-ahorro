@@ -4,7 +4,6 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../users/user.interface';
 import userModel from '../users/user.model';
-import HttpException from 'src/common/exceptions/HttpException';
 
 type exclusiveConditin = {
     $ne: any[];
@@ -117,7 +116,7 @@ class EntryService {
 
         const session = await entryModel.startSession();
         await session.withTransaction(async () => {
-            await entryModel.deleteMany({ user: userId }, { session: session });
+            await entryModel.deleteMany({ user: userId }, { session });
             entries = entries.map((v) => {
                 v._id = ++_id;
                 v.amount = parseInt(v.amount);
@@ -127,7 +126,7 @@ class EntryService {
                 delete v.routine_id;
                 return v;
             });
-            await entryModel.insertMany(entries, { session: session }).catch((err) => {
+            await entryModel.insertMany(entries, { session }).catch((err) => {
                 console.log(err);
             });
         });
@@ -138,7 +137,7 @@ class EntryService {
 
         return {
             status: 200,
-            message: message
+            message
         };
     }
 
