@@ -12,6 +12,12 @@ import cors from 'cors';
 validateEnv();
 const app = express();
 const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH, COOKIE_SECRET } = process.env;
+const { MONGO_TEST_USER, MONGO_TEST_PASSWORD, MONGO_TEST_PATH } = process.env;
+
+const mongoConnectString =
+    process.env.NODE_ENV == 'test'
+        ? `mongodb://${MONGO_TEST_USER}:${MONGO_TEST_PASSWORD}${MONGO_TEST_PATH}`
+        : `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`;
 
 app.use(
     cors({
@@ -35,7 +41,7 @@ app.use('/', routes);
 app.use(errorMiddleware);
 
 mongoose.connect(
-    `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`,
+    `${mongoConnectString}`,
     { useNewUrlParser: true, useUnifiedTopology: true },
     (err) => {
         if (!err) {
@@ -44,6 +50,14 @@ mongoose.connect(
     }
 );
 
+if (process.env.NODE_ENV === 'dev') {
+    const port = +process.env.SERVER_PORT;
+    app.listen(port, () => {
+        console.log(`Example app listening at http://localhost:${port}`);
+    });
+}
+
+export default app;
 export const handler = serverless(app, {
     request: function (request, event, context) {
         context.callbackWaitsForEmptyEventLoop = false;

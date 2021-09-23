@@ -4,7 +4,7 @@
   "description": "",
   "author": "",
   "scripts": {
-    "serve": "tsc-watch -p tsconfig.build.json --onSuccess \"node -r source-map-support/register -r ts-node/register/transpile-only -r tsconfig-paths/register .\"",
+    "serve": "NODE_ENV=dev tsc-watch -p tsconfig.build.json --onSuccess \"node -r source-map-support/register -r ts-node/register/transpile-only -r tsconfig-paths/register .\"",
     "serve:debug": "tsc-watch -p tsconfig.build.json --onSuccess \"node --inspect=0.0.0.0 -r source-map-support/register -r ts-node/register/transpile-only -r tsconfig-paths/register .\"",
     "build": "npm-run-all lint tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json",
@@ -16,7 +16,7 @@
     "vue:build": "vue-cli-service build --no-clean",
     "vue:serve": "vue-cli-service serve --port 3001"
   },
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "dependencies": {
     "axios": "^0.21",
     "bcrypt": "^5.0.1",
