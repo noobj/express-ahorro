@@ -4,6 +4,7 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../users/user.interface';
 import userModel from '../users/user.model';
+import HttpException from 'src/common/exceptions/HttpException';
 
 type exclusiveConditin = {
     $ne: any[];
@@ -105,8 +106,6 @@ class EntryService {
             };
         }
 
-        let countInserted = 0;
-        const hrstart = process.hrtime();
         // get the last _id
         let { _id } = await entryModel
             .find({}, { _id: 1 })
@@ -116,29 +115,26 @@ class EntryService {
                 return res[0] || { _id: 0 };
             });
 
-        await entryModel.deleteMany({ user: userId });
-        await Promise.all(
-            entries.map((v) => {
+        const session = await entryModel.startSession();
+        await session.withTransaction(async () => {
+            await entryModel.deleteMany({ user: userId }, { session: session });
+            entries = entries.map((v) => {
                 v._id = ++_id;
                 v.amount = parseInt(v.amount);
                 v.category = parseInt(v.category_id);
                 v.user = userId;
                 delete v.category_id;
                 delete v.routine_id;
-                return entryModel
-                    .create(v)
-                    .then(() => {
-                        countInserted++;
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            })
-        );
-        const hrend = process.hrtime(hrstart);
-        const message = `${countInserted} items have been inserted/updated using ${
-            hrend[1] / 1000000000
-        } seconds.`;
+                return v;
+            });
+            await entryModel.insertMany(entries, { session: session }).catch((err) => {
+                console.log(err);
+            });
+        });
+
+        await session.endSession();
+
+        const message = `${entries.length} items have been inserted/updated`;
 
         return {
             status: 200,
