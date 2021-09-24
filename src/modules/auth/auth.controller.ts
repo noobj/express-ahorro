@@ -2,31 +2,26 @@ import * as bcrypt from 'bcrypt';
 import * as express from 'express';
 import UserAccountExistedException from 'src/common/exceptions/UserAccountExistedException';
 import WrongCredentialsException from 'src/common/exceptions/WrongCredentialsException';
-import validationMiddleware from 'src/common/middlewares/validation.middleware';
 import CreateUserDto from '../users/user.dto';
 import userModel from 'src/modules/users/user.model';
 import LogInDto from './logIn.dto';
-import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
-import { controller, httpGet, httpPost, requestParam } from 'inversify-express-utils';
 import AuthService from './auth.service';
 import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthenticationTokenException';
 import User from '../users/user.interface';
 import UserNotFoundException from 'src/common/exceptions/UserNotFoundException';
 import { ThirdPartyfactory, ServiceKeys } from './third_party/thirdParty.factory';
 
-@controller('/auth')
 class AuthenticationController {
     public router = express.Router();
     private user = userModel;
 
     constructor(private authService: AuthService) {}
 
-    @httpPost('/register', validationMiddleware(CreateUserDto))
-    public async registration(
+    public registration = async (
         request: any,
         response: express.Response,
         next: express.NextFunction
-    ) {
+    ) => {
         const userData: CreateUserDto = request.body;
         if (await this.user.findOne({ account: userData.account })) {
             next(new UserAccountExistedException(userData.account));
@@ -69,41 +64,38 @@ class AuthenticationController {
                 });
             response.send(user);
         }
-    }
+    };
 
-    @httpPost('/login/:type')
-    public thirdPartyLogin(
-        @requestParam('type') serviceType: string,
+    public thirdPartyLogin = (
         request: any,
         response: express.Response,
         next: express.NextFunction
-    ) {
+    ) => {
+        let serviceType = request.params.type;
         serviceType = ServiceKeys.includes(serviceType) ? serviceType : 'null';
         const thirdPartyinstance =
             ThirdPartyfactory.getThirdPartyServiceInstance(serviceType);
         const url = thirdPartyinstance.generateUrl();
 
-        return {
-            status: 301,
+        response.send({
             message: url
-        };
-    }
+        });
+    };
 
-    @httpGet('/callback/:type')
-    public async thirdPartyLoginCallback(
-        @requestParam('type') serviceType: string,
+    public thirdPartyLoginCallback = async (
         request: any,
         response: express.Response,
         next: express.NextFunction
-    ): Promise<void> {
+    ): Promise<void> => {
         let user;
         try {
+            let serviceType = request.params.type;
             serviceType = ServiceKeys.includes(serviceType) ? serviceType : 'null';
             const thirdPartyinstance =
                 ThirdPartyfactory.getThirdPartyServiceInstance(serviceType);
             user = await thirdPartyinstance.handleCallback(request);
         } catch (err) {
-            response.redirect('/login.html');
+            response.redirect(`${process.env.HOST_URL}/login.html`);
             return;
         }
 
@@ -118,25 +110,28 @@ class AuthenticationController {
             .cookie('access_token', accessToken.token, {
                 expires: new Date(Date.now() + accessToken.expiresIn * 1000),
                 httpOnly: true,
-                signed: true
+                signed: true,
+                sameSite: 'none',
+                secure: true
             })
             .cookie('refresh_token', refreshToken.token, {
                 expires: new Date(Date.now() + refreshToken.expiresIn * 1000),
                 httpOnly: true,
                 signed: true,
-                path: '/auth/refresh'
-            })
-            .redirect('/');
-    }
+                sameSite: 'none',
+                secure: true,
+                path: '/dev/auth/refresh'
+            });
+        response.redirect(process.env.HOST_URL);
+    };
 
-    @httpPost('/login', validationMiddleware(LogInDto))
-    public async loggingIn(
+    public loggingIn = async (
         request: any,
         response: express.Response,
         next: express.NextFunction
-    ) {
+    ) => {
         const logInData: LogInDto = request.body;
-        const user = await this.user.findOne({ account: logInData.account });
+        const user = await userModel.findOne({ account: logInData.account });
         if (user && user.password) {
             const isPasswordMatching = await bcrypt.compare(
                 logInData.password,
@@ -146,7 +141,7 @@ class AuthenticationController {
                 const userForReturn = this.authService.hideUserInfo(user);
                 const accessToken = this.authService.generateAccessToken(user);
                 const refreshToken = this.authService.generateRefreshToken(user);
-                await this.user.updateOne(
+                await userModel.updateOne(
                     { _id: user._id },
                     { refresh_token: refreshToken.token }
                 );
@@ -156,13 +151,17 @@ class AuthenticationController {
                     .cookie('access_token', accessToken.token, {
                         expires: new Date(Date.now() + accessToken.expiresIn * 1000),
                         httpOnly: true,
-                        signed: true
+                        signed: true,
+                        sameSite: 'none',
+                        secure: true
                     })
                     .cookie('refresh_token', refreshToken.token, {
                         expires: new Date(Date.now() + refreshToken.expiresIn * 1000),
                         httpOnly: true,
                         signed: true,
-                        path: '/auth/refresh'
+                        sameSite: 'none',
+                        secure: true,
+                        path: '/dev/auth/refresh',
                     });
                 response.send(userForReturn);
             } else {
@@ -171,14 +170,13 @@ class AuthenticationController {
         } else {
             next(new UserNotFoundException());
         }
-    }
+    };
 
-    @httpPost('/refresh')
-    public async refreshToken(
+    public refreshToken = async (
         request: any,
         response: express.Response,
         next: express.NextFunction
-    ) {
+    ) => {
         const refreshToken = request?.signedCookies?.refresh_token;
 
         if (refreshToken) {
@@ -192,7 +190,9 @@ class AuthenticationController {
                         .cookie('access_token', accessToken.token, {
                             expires: new Date(Date.now() + accessToken.expiresIn * 1000),
                             httpOnly: true,
-                            signed: true
+                            signed: true,
+                            sameSite: 'none',
+                            secure: true
                         })
                         .send();
                 } else next(new WrongAuthenticationTokenException());
@@ -202,19 +202,23 @@ class AuthenticationController {
         } else {
             next(new WrongAuthenticationTokenException());
         }
-    }
+    };
 
-    @httpPost('/logout', jwtAuthMiddleware)
-    public async loggingOut(
+    public loggingOut = async (
         request: express.Request & { user: User },
         response: express.Response
-    ) {
+    ) => {
         await this.user.updateOne({ _id: request.user._id }, { refresh_token: '' });
         response
-            .cookie('access_token', '', { maxAge: 0 })
-            .cookie('refresh_token', '', { maxAge: 0, path: '/auth/refresh' })
+            .cookie('access_token', '', { maxAge: 0, sameSite: 'none', secure: true })
+            .cookie('refresh_token', '', {
+                maxAge: 0,
+                sameSite: 'none',
+                secure: true,
+                path: '/auth/refresh'
+            })
             .send('logged out');
-    }
+    };
 }
 
 export default AuthenticationController;

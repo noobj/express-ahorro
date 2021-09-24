@@ -1,60 +1,50 @@
-import 'reflect-metadata';
-import './modules/entries/entry.controller';
-import './modules/auth/auth.controller';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import errorMiddleware from './common/middlewares/error.middleware';
-import { InversifyExpressServer } from 'inversify-express-utils';
-import { container } from './inversify.config';
 import { validateEnv } from './common/helpers/utils';
 import express from 'express';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
-import https from 'https';
-import { readFileSync } from 'fs';
+import serverless from 'serverless-http';
+import routes from 'src/routes/api';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 validateEnv();
-const server = new InversifyExpressServer(container);
+const app = express();
 const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH, COOKIE_SECRET } = process.env;
+const { MONGO_TEST_USER, MONGO_TEST_PASSWORD, MONGO_TEST_PATH } = process.env;
 
-server.setConfig((app) => {
-    app.use((req, res, next) => {
-        console.log(req.url);
-        next();
-    });
+const mongoConnectString =
+    process.env.NODE_ENV == 'test'
+        ? `mongodb://${MONGO_TEST_USER}:${MONGO_TEST_PASSWORD}${MONGO_TEST_PATH}`
+        : `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`;
 
-    app.use(
-        bodyParser.urlencoded({
-            extended: true
-        })
-    );
-    app.use(express.static(join(__dirname, 'public')));
-    app.use(cookieParser(COOKIE_SECRET));
+app.use(
+    cors({
+        origin: ['https://192.168.56.101:3001', 'https://ahorrojs.netlify.app'],
+        credentials: true
+    })
+);
+app.use((req, res, next) => {
+    console.log(req.url);
+    next();
 });
 
-server.setErrorConfig((app) => {
-    app.use(errorMiddleware);
-});
-
-const port = +process.env.SERVER_PORT;
-const app = server.build();
-
-const httpsConfig = {
-    key: readFileSync(join(__dirname, '../ahorroAuth-key.pem'), 'utf8').toString(),
-    cert: readFileSync(join(__dirname, '../ahorroAuth-cert.pem'), 'utf8').toString()
-};
-
-const httpsServer = https.createServer(httpsConfig, app);
-httpsServer.listen(port);
-httpsServer.on('listening', () => {
-    console.log(`HTTPS server connected on ${port}`);
-})
-httpsServer.on('error', (err) => {
-    console.error('HTTPS server FAIL: ', err, err && err.stack);
-});
+app.use(
+    bodyParser.urlencoded({
+        extended: true
+    })
+);
+app.use(express.static(join(__dirname, 'public')));
+app.use(cookieParser(COOKIE_SECRET));
+app.use('/', routes);
+app.use(errorMiddleware);
 
 mongoose.connect(
-    `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`,
+    `${mongoConnectString}`,
     { useNewUrlParser: true, useUnifiedTopology: true },
     (err) => {
         if (!err) {
@@ -62,3 +52,18 @@ mongoose.connect(
         }
     }
 );
+
+if (process.env.NODE_ENV === 'dev') {
+    const port = +process.env.SERVER_PORT;
+    app.listen(port, () => {
+        console.log(`Example app listening at http://localhost:${port}`);
+    });
+}
+
+export default app;
+export const handler = serverless(app, {
+    request: function (request, event, context) {
+        context.callbackWaitsForEmptyEventLoop = false;
+        request.context = event.requestContext;
+    }
+});

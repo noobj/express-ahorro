@@ -18,6 +18,9 @@ jobs:
           command: dockerize -wait tcp://localhost:27017 -timeout 1m
       - checkout
       - run:
+          name: Set up .env
+          command: mv .env.example .env
+      - run:
           name: Npm install
           command: npm ci
       - run:

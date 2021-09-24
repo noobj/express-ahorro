@@ -1,13 +1,5 @@
-import 'reflect-metadata';
-import 'src/modules/entries/entry.controller';
-import 'src/modules/auth/auth.controller';
-import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-import errorMiddleware from 'src/common/middlewares/error.middleware';
-import { InversifyExpressServer } from 'inversify-express-utils';
-import { container } from 'src/inversify.config';
-import express from 'express';
+import app from 'src/server';
 import request from 'supertest';
 import dotenv from 'dotenv';
 import { join } from 'path';
@@ -18,32 +10,11 @@ import UserSeeder from 'src/database/seeders/user.seeder';
 dotenv.config({ path: join(__dirname, '../.env.example') });
 
 describe('EntryController (e2e)', () => {
-    let app: express.Application;
     let cookies;
 
     beforeAll(async (done) => {
-        // DB initialize and seeding
-        const { MONGO_USER, MONGO_PASSWORD, MONGO_TEST_PATH, COOKIE_SECRET } =
-            process.env;
-        try {
-            await mongoose.connect(
-                `mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_TEST_PATH}`,
-                { useNewUrlParser: true, useUnifiedTopology: true }
-            );
-        } catch (e) {
-            console.log(e);
-        }
-
         await Promise.all([EntrySeeder.run(), CategorySeeder.run(), UserSeeder.run()]);
 
-        const server = new InversifyExpressServer(container);
-        server.setConfig((app) => {
-            app.use(bodyParser.json());
-            app.use(errorMiddleware);
-            app.use(cookieParser(COOKIE_SECRET));
-        });
-
-        app = server.build();
         done();
     });
 
@@ -55,6 +26,7 @@ describe('EntryController (e2e)', () => {
 
         return request(app)
             .post('/auth/login')
+            .type('form')
             .send(payload)
             .end(function (err, res) {
                 expect(res.status).toEqual(200);

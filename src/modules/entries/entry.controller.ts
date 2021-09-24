@@ -2,15 +2,15 @@ import * as express from 'express';
 import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 import moment from 'moment';
 import EntryService from './entry.service';
-import { controller, httpGet, httpPost } from 'inversify-express-utils';
-import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
+import HttpException from 'src/common/exceptions/HttpException';
 
-@controller('/entries')
 class EntryController {
     constructor(private entryService: EntryService) {}
 
-    @httpGet('/', jwtAuthMiddleware)
-    public async getAllEntries(request: requestWithUser, response: express.Response) {
+    public getAllEntries = async (
+        request: requestWithUser,
+        response: express.Response
+    ) => {
         const timeStartInput = request.query?.timeStart as string;
         const timeEndInput = request.query?.timeEnd as string;
         const categoriesExclude =
@@ -65,18 +65,17 @@ class EntryController {
         // wrapping the response
         const res = {
             categories: result,
-            total: total
+            total
         };
 
         response.send(res);
-    }
+    };
 
-    @httpPost('/sync', jwtAuthMiddleware)
-    public async sync(
+    public sync = async (
         request: requestWithUser,
         response: express.Response,
         next: express.NextFunction
-    ) {
+    ) => {
         const access_token = request.user.google_access_token;
         const refresh_token = request.user.google_refresh_token;
 
@@ -84,24 +83,26 @@ class EntryController {
             access_token,
             refresh_token
         };
+        try {
+            const res = await this.entryService.syncEntry(token, request.user._id);
 
-        const res = await this.entryService.syncEntry(token, request.user._id);
+            response.status(res.status).send(res);
+        } catch (err) {
+            next(new HttpException(408, 'sync with third party failed'));
+        }
+    };
 
-        response.status(res.status).send(res);
-    }
-
-    @httpGet('/sync/callback', jwtAuthMiddleware)
-    public async handleCallback(
+    public handleCallback = async (
         request: requestWithUser,
         response: express.Response,
         next: express.NextFunction
-    ) {
+    ) => {
         const code = request.query.code.toString();
         const user = request.user;
         await this.entryService.googleCallback(code, user);
 
-        response.redirect('/');
-    }
+        response.redirect(process.env.HOST_URL);
+    };
 }
 
 export default EntryController;

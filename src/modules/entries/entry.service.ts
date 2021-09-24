@@ -1,6 +1,5 @@
 import entryModel from './entry.model';
 import EntryCatgegoryBundle from './entryCatgegoryBundle.interface';
-import { injectable } from 'inversify';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../users/user.interface';
@@ -20,7 +19,6 @@ type googleToken = {
     refresh_token: string;
 };
 
-@injectable()
 class EntryService {
     public async fetchEntries(
         user: User,
@@ -84,9 +82,9 @@ class EntryService {
     }
 
     public async syncEntry(token: googleToken, userId: number): Promise<any> {
-        const clientId = process.env.CLIENT_ID;
-        const clientSecret = process.env.CLIENT_SECRET;
-        const redirectUrl = 'https://ahorrojs.io:3333/entries/sync/callback';
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        const redirectUrl = `${process.env.VUE_APP_BACKEND_API_BASE_URL}/entries/sync/callback`;
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
@@ -107,8 +105,6 @@ class EntryService {
             };
         }
 
-        let countInserted = 0;
-        const hrstart = process.hrtime();
         // get the last _id
         let { _id } = await entryModel
             .find({}, { _id: 1 })
@@ -118,33 +114,30 @@ class EntryService {
                 return res[0] || { _id: 0 };
             });
 
-        await entryModel.deleteMany({ user: userId });
-        await Promise.all(
-            entries.map((v) => {
+        const session = await entryModel.startSession();
+        await session.withTransaction(async () => {
+            await entryModel.deleteMany({ user: userId }, { session });
+            entries = entries.map((v) => {
                 v._id = ++_id;
                 v.amount = parseInt(v.amount);
                 v.category = parseInt(v.category_id);
                 v.user = userId;
                 delete v.category_id;
                 delete v.routine_id;
-                return entryModel
-                    .create(v)
-                    .then(() => {
-                        countInserted++;
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            })
-        );
-        const hrend = process.hrtime(hrstart);
-        const message = `${countInserted} items have been inserted/updated using ${
-            hrend[1] / 1000000000
-        } seconds.`;
+                return v;
+            });
+            await entryModel.insertMany(entries, { session }).catch((err) => {
+                console.log(err);
+            });
+        });
+
+        await session.endSession();
+
+        const message = `${entries.length} items have been inserted/updated`;
 
         return {
             status: 200,
-            message: message
+            message
         };
     }
 
@@ -184,9 +177,9 @@ class EntryService {
     }
 
     public async googleCallback(code: string, user: User): Promise<void> {
-        const clientId = process.env.CLIENT_ID;
-        const clientSecret = process.env.CLIENT_SECRET;
-        const redirectUrl = 'https://ahorrojs.io:3333/entries/sync/callback';
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        const redirectUrl = `${process.env.VUE_APP_BACKEND_API_BASE_URL}/entries/sync/callback`;
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
         const token = await oAuth2Client.getToken(code);

@@ -11,9 +11,9 @@ export class GoogleLoginService implements BaseThirdPartyLoginService {
     constructor(private authService: AuthService) {}
 
     public generateUrl(): string {
-        const clientId = process.env.CLIENT_ID;
-        const clientSecret = process.env.CLIENT_SECRET;
-        const redirectUrl = 'https://ahorrojs.io:3333/auth/callback/google';
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        const redirectUrl = `${process.env.DOMAIN_NAME}/auth/callback/google`;
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
         const url = oAuth2Client.generateAuthUrl({
@@ -30,9 +30,9 @@ export class GoogleLoginService implements BaseThirdPartyLoginService {
         const error = request?.query?.error?.toString();
         if (error != undefined) throw new ThirdPartyCallBackException('Google');
 
-        const clientId = process.env.CLIENT_ID;
-        const clientSecret = process.env.CLIENT_SECRET;
-        const redirectUrl = 'https://ahorrojs.io:3333/auth/callback/google';
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        const redirectUrl = `${process.env.DOMAIN_NAME}/auth/callback/google`;
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
         const token = await oAuth2Client.getToken(code);

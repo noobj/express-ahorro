@@ -9,3 +9,4 @@ credentials_for_cli.json
 token.json
 **/coverage/
 *.pem
+.serverless/

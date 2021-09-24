@@ -1,11 +1,9 @@
-import { injectable } from 'inversify';
 import User from 'src/modules/users/user.interface';
 import TokenData from 'src/common/interfaces/tokenData.interface';
 import DataStoredInToken from 'src/common/interfaces/dataStoredInToken';
 import * as jwt from 'jsonwebtoken';
 import userModel from '../users/user.model';
 
-@injectable()
 class AuthService {
     public generateAccessToken(user: User): TokenData {
         const expiresIn = +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME;
