@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import errorMiddleware from './common/middlewares/error.middleware';
-// import { validateEnv } from './common/helpers/utils';
+import { validateEnv } from './common/helpers/utils';
 import express from 'express';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
@@ -12,7 +12,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// validateEnv();
+validateEnv();
 const app = express();
 const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH, COOKIE_SECRET } = process.env;
 const { MONGO_TEST_USER, MONGO_TEST_PASSWORD, MONGO_TEST_PATH } = process.env;
