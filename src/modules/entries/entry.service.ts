@@ -4,6 +4,7 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../users/user.interface';
 import userModel from '../users/user.model';
+import moment from 'moment';
 
 type exclusiveConditin = {
     $ne: any[];
@@ -191,6 +192,52 @@ class EntryService {
                 google_access_token: token.tokens.access_token
             }
         );
+    }
+
+    public async getMonthlySum(year: string): Promise<any> {
+        const timeStart = moment(`${year}-01-01`).toISOString();
+        const timeEnd = moment(`${year}-12-31 23:59:59`).toISOString();
+
+        let result = await entryModel.aggregate([
+            { $match: { date: { $gte: timeStart, $lte: timeEnd } } },
+            {
+                $group: {
+                    _id: { $substr: ['$date', 0, 7] },
+                    sum: { $sum: '$amount' }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        // Insert the month without entries with sum = 0
+        for (let i = 1; i <= 12; i++) {
+            let monthStr = i.toString();
+            if (i < 10) monthStr = '0' + i.toString();
+            const dateStr = `${year}-${monthStr}`;
+            const isExist = result.findIndex((v) => {
+                if (v._id == dateStr) return true;
+            });
+
+            if (isExist === -1) {
+                result.push({ _id: dateStr, sum: 0 });
+            }
+        }
+
+        // Sort the result by month
+        result.sort((a, b) => {
+            if (a._id > b._id) return 1;
+            else return -1;
+        });
+
+        // Turn the _id into month and readable format
+        result = result.map((v) => {
+            return {
+                month: moment(v._id).format('MMMM'),
+                sum: v.sum
+            };
+        });
+
+        return result;
     }
 }
 

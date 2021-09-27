@@ -103,6 +103,17 @@ class EntryController {
 
         response.redirect(process.env.HOST_URL);
     };
+
+    public getMonthlySum = async (
+        request: requestWithUser,
+        response: express.Response,
+        next: express.NextFunction
+    ) => {
+        const year = request.query.year.toString();
+
+        const res = await this.entryService.getMonthlySum(year);
+        response.send(res);
+    };
 }
 
 export default EntryController;
