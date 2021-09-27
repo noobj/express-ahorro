@@ -14,6 +14,7 @@ const entryController = new EntryController(new EntryService());
 
 router.get('/entries', jwtAuthMiddleware, entryController.getAllEntries);
 router.post('/entries/sync', jwtAuthMiddleware, entryController.sync);
+router.get('/entries/monthly', jwtAuthMiddleware, entryController.getMonthlySum);
 router.get('/entries/sync/callback', jwtAuthMiddleware, entryController.handleCallback);
 
 router.post(

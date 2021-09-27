@@ -60,7 +60,7 @@ class AuthenticationController {
                     expires: new Date(Date.now() + refreshToken.expiresIn * 1000),
                     httpOnly: true,
                     signed: true,
-                    path: '/auth/refresh'
+                    path: '/dev/auth/refresh'
                 });
             response.send(user);
         }
@@ -161,7 +161,7 @@ class AuthenticationController {
                         signed: true,
                         sameSite: 'none',
                         secure: true,
-                        path: '/dev/auth/refresh',
+                        path: '/dev/auth/refresh'
                     });
                 response.send(userForReturn);
             } else {
@@ -215,7 +215,7 @@ class AuthenticationController {
                 maxAge: 0,
                 sameSite: 'none',
                 secure: true,
-                path: '/auth/refresh'
+                path: '/dev/auth/refresh'
             })
             .send('logged out');
     };

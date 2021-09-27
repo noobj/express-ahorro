@@ -93,7 +93,7 @@
 
         <div>
             <Yearlychart
-                v-if="!skipQuery"
+                v-if="monthlyDisplay"
                 :style="myStyles"
                 :chart-data="yearlyCollection"
                 :options="options"
@@ -139,9 +139,9 @@ export default {
             entriesSortByDate: false,
             categoriesExclude: new Set(),
             yearlyCollection: {},
-            skipQuery: true,
+            monthlyDisplay: false,
             activeCat: -1,
-            yearDisplay: '2020',
+            currentYear: moment(this.end).endOf('year').format('YYYY'),
             myStyles: {
                 height: '300px',
                 width: '100%',
@@ -199,7 +199,6 @@ export default {
                 this.end = moment(this.start).endOf('month').format('YYYY-MM-DD');
             }
 
-            this.skipQuery = true;
             this.activeCat = -1;
             this.fetchEntries();
         },
@@ -219,8 +218,7 @@ export default {
                 this.end = moment(this.end).endOf('month').format('YYYY-MM-DD');
             }
 
-            this.yearDisplay = moment(this.end).endOf('year').format('YYYY');
-            this.skipQuery = true;
+            this.currentYear = moment(this.end).endOf('year').format('YYYY');
             this.activeCat = -1;
             this.fetchEntries();
         },
@@ -228,13 +226,30 @@ export default {
             return moment(this.start).format('MM') === moment(this.end).format('MM');
         },
         yearlyDisplay() {
-            if (this.skipQuery) {
-                this.start = moment(this.end).startOf('year').format('YYYY-MM-DD');
-                this.end = moment(this.end).endOf('year').format('YYYY-MM-DD');
-                this.yearDisplay = moment(this.end).endOf('year').format('YYYY');
-            }
+            this.start = moment(this.end).startOf('year').format('YYYY-MM-DD');
+            this.end = moment(this.end).endOf('year').format('YYYY-MM-DD');
+            this.year = moment(this.end).endOf('year').format('YYYY');
 
-            this.skipQuery = !this.skipQuery;
+            this.monthlyDisplay = !this.monthlyDisplay;
+            fetchOrRefreshAuth(`/entries/monthly?year=${this.year}`)
+                .then((res) => res.json())
+                .then((result) => {
+                    const labels = result.map((v) => v.month);
+                    const values = result.map((v) => v.sum);
+
+                    this.yearlyCollection = {
+                        labels,
+                        datasets: [
+                            {
+                                label: 'sum',
+                                backgroundColor: '#004daa',
+                                data: values
+                            }
+                        ]
+                    };
+                });
+
+            this.fetchEntries();
         },
         fetchEntries() {
             const params = new URLSearchParams();

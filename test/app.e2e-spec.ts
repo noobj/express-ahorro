@@ -56,6 +56,21 @@ describe('EntryController (e2e)', () => {
             });
     });
 
+    it('/Get monthly', (done) => {
+        return request(app)
+            .get('/entries/monthly')
+            .set('Cookie', cookies)
+            .query({
+                year: '2021',
+            })
+            .end((err, res) => {
+                expect(res.status).toEqual(200);
+                expect(res.body[6].sum).toEqual(10282);
+                expect(res.body[7].sum).toEqual(508);
+                done();
+            });
+    });
+
     it('/POST auth/refresh', (done) => {
         return request(app)
             .post('/auth/refresh')

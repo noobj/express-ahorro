@@ -9,6 +9,8 @@ import serverless from 'serverless-http';
 import routes from 'src/routes/api';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import https from 'https';
+import { readFileSync } from 'fs';
 
 dotenv.config();
 
@@ -54,8 +56,15 @@ mongoose.connect(
 );
 
 if (process.env.NODE_ENV === 'dev') {
+    const key = readFileSync(__dirname + '/../../key.pem');
+    const cert = readFileSync(__dirname + '/../../cert.pem');
+    const options = {
+        key: key,
+        cert: cert
+    };
+    const server = https.createServer(options, app);
     const port = +process.env.SERVER_PORT;
-    app.listen(port, () => {
+    server.listen(port, () => {
         console.log(`Example app listening at http://localhost:${port}`);
     });
 }
