@@ -1,6 +1,9 @@
 version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@x.y
+  serverless: circleci/serverless-framework@x.y
 jobs:
-  build:
+  test:
     docker:
       - image: circleci/node:14.16.1
       - image: circleci/mongo:4.4.6
@@ -34,3 +37,20 @@ jobs:
           command: export COVERALLS_REPO_TOKEN=eFUZ7swNHpoHSJFisqqxntUMwfTyqfBI7 && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
       - store_artifacts:
           path: coverage
+  sls-deploy:
+    executor: serverless/default
+      steps:
+        - checkout
+        - aws-cli/setup
+        - serverless/setup:
+            app-name: serverless-framework-orb
+            org-name: circleci
+        - run:
+            command: serverless deploy -v
+            name: deploy
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - test
+      - sls-deploy
