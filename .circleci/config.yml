@@ -56,3 +56,4 @@ workflows:
   deploy:
     jobs:
       - test
+      - sls-deploy
