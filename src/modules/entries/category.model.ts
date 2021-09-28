@@ -4,7 +4,11 @@ import Category from './category.interface';
 const categorySchema = new mongoose.Schema({
     _id: Number,
     name: String,
-    color: String
+    color: String,
+    user: {
+        ref: 'User',
+        type: mongoose.Schema.Types.Number
+    }
 });
 
 const tmpCategoryModel = mongoose.models !== {} ? mongoose.models?.Category : null;
