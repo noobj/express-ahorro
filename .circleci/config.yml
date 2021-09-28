@@ -44,10 +44,13 @@ jobs:
         - aws-cli/setup
         - run:
             name: install ts-node
-            command: sudo npm i -g ts-node typescript
+            command: sudo npm i -g ts-node typescript tsc
         - run:
             name: install modules
-            command: npm i tsconfig-paths
+            command: npm ci
+        - run:
+            name: tsc
+            command: tsc
         - serverless/setup:
             app-name: serverless-framework-orb
             org-name: circleci
