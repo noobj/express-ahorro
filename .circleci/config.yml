@@ -24,9 +24,6 @@ jobs:
           name: Set up .env
           command: mv .env.example .env
       - run:
-          name: Npm install
-          command: npm ci
-      - run:
           name: Set Up MongoDB
           command: |
             mongo --eval 'db.createUser({ user: "jjj", pwd: "1234", roles: [ { role: "readWrite", db: "test" } ] })'
@@ -53,4 +50,3 @@ workflows:
   deploy:
     jobs:
       - test
-      - sls-deploy
