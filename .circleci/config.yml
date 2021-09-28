@@ -44,7 +44,7 @@ jobs:
         - aws-cli/setup
         - run:
             name: install ts-node
-            command: sudo npm i -g ts-node typescript tsc
+            command: sudo npm i -g ts-node typescript
         - run:
             name: install modules
             command: npm ci
