@@ -58,6 +58,12 @@ const serverlessConfiguration: AWS = {
                 },
                 {
                     http: {
+                        method: 'GET',
+                        path: '/entries/monthly'
+                    }
+                },
+                {
+                    http: {
                         method: 'POST',
                         path: '/auth/login/{type}'
                     }

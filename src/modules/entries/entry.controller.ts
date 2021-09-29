@@ -88,6 +88,7 @@ class EntryController {
 
             response.status(res.status).send(res);
         } catch (err) {
+            console.log(err);
             next(new HttpException(408, 'sync with third party failed'));
         }
     };

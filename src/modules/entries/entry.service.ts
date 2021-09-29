@@ -4,6 +4,8 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../users/user.interface';
 import userModel from '../users/user.model';
+import categoryModel from './category.model';
+import { typeMap } from './built-in_category.map';
 import moment from 'moment';
 
 type exclusiveConditin = {
@@ -89,10 +91,10 @@ class EntryService {
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
-        let entries;
+        let res;
         try {
             oAuth2Client.setCredentials(token);
-            entries = await this.fetchAndReadEntries(oAuth2Client);
+            res = await this.fetchAndReadEntries(oAuth2Client);
         } catch (err) {
             const url = oAuth2Client.generateAuthUrl({
                 access_type: 'offline',
@@ -115,26 +117,50 @@ class EntryService {
                 return res[0] || { _id: 0 };
             });
 
+        let { _id: catId } = await categoryModel
+            .find({}, { _id: 1 })
+            .sort({ _id: -1 })
+            .limit(1)
+            .then((res) => {
+                return res[0] || { _id: 0 };
+            });
+
         const session = await entryModel.startSession();
         await session.withTransaction(async () => {
             await entryModel.deleteMany({ user: userId }, { session });
-            entries = entries.map((v) => {
+            await categoryModel.deleteMany({ user: userId }, { session });
+            const idMap = [];
+
+            const categories = res.categories.map((v) => {
+                idMap[v._id] = ++catId;
+                v._id = catId;
+                const builtInName = typeMap[v.name];
+                if (builtInName) v.name = builtInName;
+                v.user = userId;
+                delete v.default_name;
+                delete v.icon;
+                delete v.behavior;
+                v.color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+                return v;
+            });
+
+            await categoryModel.insertMany(categories, { session });
+
+            const entries = res.entries.map((v) => {
                 v._id = ++_id;
                 v.amount = parseInt(v.amount);
-                v.category = parseInt(v.category_id);
+                v.category = idMap[parseInt(v.category_id)];
                 v.user = userId;
                 delete v.category_id;
                 delete v.routine_id;
                 return v;
             });
-            await entryModel.insertMany(entries, { session }).catch((err) => {
-                console.log(err);
-            });
+            await entryModel.insertMany(entries, { session });
         });
 
         await session.endSession();
 
-        const message = `${entries.length} items have been inserted/updated`;
+        const message = `${res.entries.length} items have been inserted/updated`;
 
         return {
             status: 200,
@@ -174,7 +200,10 @@ class EntryService {
                     );
                 });
             })
-            .then((res: any) => res.tables[0].items);
+            .then((res: any) => ({
+                entries: res.tables.find((v) => v.tableName === 'expense').items,
+                categories: res.tables.find((v) => v.tableName === 'category').items
+            }));
     }
 
     public async googleCallback(code: string, user: User): Promise<void> {
