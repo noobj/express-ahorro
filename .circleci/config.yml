@@ -62,4 +62,7 @@ workflows:
   deploy:
     jobs:
       - test
-      - sls-deploy
+      - sls-deploy:
+          filters:
+            branches:
+              only: main
