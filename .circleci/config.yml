@@ -6,7 +6,6 @@ jobs:
   test:
     docker:
       - image: circleci/node:14.16.1
-      - image: circleci/mongo:4.4.6
     steps:
       - run:
           name: MongoDB Install
@@ -15,9 +14,9 @@ jobs:
              echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
              sudo apt-get update
              sudo apt-get install -y mongodb-org-shell
-      - setup_remote_docker
+      - setup_remote_docker  # for the next step
       - run:
-          name: Waiting for Mongo
+          name: Waiting for Mongo # wait until mongo is ready
           command: dockerize -wait tcp://localhost:27017 -timeout 1m
       - checkout
       - run:
@@ -35,8 +34,7 @@ jobs:
           command: npm run test:overall
       - run:
           command: cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
-      - store_artifacts:
-          path: coverage
+
   sls-deploy:
     executor: serverless/default
     steps:

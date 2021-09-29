@@ -17,5 +17,7 @@
       ".spec.ts$",
       "src/database/",
       "src/server.ts"
-    ]
+    ],
+    "verbose": true,
+    "runInBand": true
   }
