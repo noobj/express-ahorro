@@ -6,6 +6,7 @@ jobs:
   test:
     docker:
       - image: circleci/node:14.16.1
+      - image: circleci/mongo:4.4.6
     steps:
       - run:
           name: MongoDB Install
@@ -34,7 +35,6 @@ jobs:
           command: npm run test:overall
       - run:
           command: cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
-
   sls-deploy:
     executor: serverless/default
     steps:
