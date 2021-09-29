@@ -109,7 +109,8 @@ describe('EntryController (e2e)', () => {
             });
     });
 
-    afterAll(async () => {
+    afterAll(async (done) => {
         await mongoose.disconnect();
+        done();
     });
 });
