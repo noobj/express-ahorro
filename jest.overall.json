@@ -12,7 +12,6 @@
     "collectCoverage": true,
     "coverageDirectory": "./coverage",
     "collectCoverageFrom": ["src/**/*.(t|j)s"],
-    "coverageReporters": ["lcov"],
     "coveragePathIgnorePatterns": [
         ".module.ts$",
         ".spec.ts$",
