@@ -43,3 +43,21 @@ document.querySelector('#loginGoogle').addEventListener('click', (e) => {
             alert(err.message);
         });
 });
+
+document.querySelector('#loginFacebook').addEventListener('click', (e) => {
+    e.preventDefault();
+    const url = '/auth/login/facebook';
+    fetch(`${baseUrl}${url}`, {
+        method: 'POST',
+        credentials: 'include'
+    })
+        .then(async (res) => {
+            const body = await res.json();
+            const redirUrl = body.message;
+            if (res.status !== 200) throw new Error(body.message);
+            window.location.href = redirUrl;
+        })
+        .catch((err) => {
+            alert(err.message);
+        });
+});

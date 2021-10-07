@@ -13,7 +13,7 @@ export class GoogleLoginService implements BaseThirdPartyLoginService {
     public generateUrl(): string {
         const clientId = process.env.GOOGLE_CLIENT_ID;
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-        const redirectUrl = `${process.env.DOMAIN_NAME}/auth/callback/google`;
+        const redirectUrl = `${process.env.VUE_APP_BACKEND_API_BASE_URL}/auth/callback/google`;
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
         const url = oAuth2Client.generateAuthUrl({
@@ -32,7 +32,7 @@ export class GoogleLoginService implements BaseThirdPartyLoginService {
 
         const clientId = process.env.GOOGLE_CLIENT_ID;
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-        const redirectUrl = `${process.env.DOMAIN_NAME}/auth/callback/google`;
+        const redirectUrl = `${process.env.VUE_APP_BACKEND_API_BASE_URL}/auth/callback/google`;
 
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
         const token = await oAuth2Client.getToken(code);

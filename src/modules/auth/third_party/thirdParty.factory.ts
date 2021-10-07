@@ -1,9 +1,11 @@
 import AuthService from '../auth.service';
+import { FacebookLoginService } from './facebookLogin.service';
 import { GoogleLoginService } from './googleLogin.service';
 import { NullLoginService } from './nullLogin.service';
 
 const serviceMap = {
     google: GoogleLoginService,
+    facebook: FacebookLoginService,
     null: NullLoginService
 };
 

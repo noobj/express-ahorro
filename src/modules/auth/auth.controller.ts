@@ -95,6 +95,8 @@ class AuthenticationController {
                 ThirdPartyfactory.getThirdPartyServiceInstance(serviceType);
             user = await thirdPartyinstance.handleCallback(request);
         } catch (err) {
+            // needs to log err;
+            console.log(err);
             response.redirect(`${process.env.HOST_URL}/login.html`);
             return;
         }
