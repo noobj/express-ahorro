@@ -3,6 +3,7 @@ import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 import moment from 'moment';
 import EntryService from './entry.service';
 import HttpException from 'src/common/exceptions/HttpException';
+import ThirdPartyCallBackException from 'src/common/exceptions/ThirdPartyCallBackException';
 
 class EntryController {
     constructor(private entryService: EntryService) {}
@@ -98,11 +99,24 @@ class EntryController {
         response: express.Response,
         next: express.NextFunction
     ) => {
-        const code = request.query.code.toString();
-        const user = request.user;
-        await this.entryService.googleCallback(code, user);
+        const code = request?.query?.code?.toString();
+        const error = request?.query?.error?.toString();
+        if (error != undefined) {
+            response.redirect(process.env.HOST_URL);
+            return;
+        }
 
-        response.redirect(process.env.HOST_URL);
+        const user = request.user;
+        const token = await this.entryService.googleCallback(code, user);
+
+        try {
+            const res = await this.entryService.syncEntry(token, request.user._id);
+
+            response.redirect(process.env.HOST_URL);
+        } catch (err) {
+            console.log(err);
+            next(new HttpException(408, 'sync with third party failed'));
+        }
     };
 
     public getMonthlySum = async (

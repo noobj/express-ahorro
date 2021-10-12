@@ -206,7 +206,7 @@ class EntryService {
             }));
     }
 
-    public async googleCallback(code: string, user: User): Promise<void> {
+    public async googleCallback(code: string, user: User): Promise<any> {
         const clientId = process.env.GOOGLE_CLIENT_ID;
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
         const redirectUrl = `${process.env.VUE_APP_BACKEND_API_BASE_URL}/entries/sync/callback`;
@@ -221,6 +221,8 @@ class EntryService {
                 google_access_token: token.tokens.access_token
             }
         );
+
+        return token.tokens;
     }
 
     public async getMonthlySum(year: string): Promise<any> {
