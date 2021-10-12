@@ -3,7 +3,6 @@ import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 import moment from 'moment';
 import EntryService from './entry.service';
 import HttpException from 'src/common/exceptions/HttpException';
-import ThirdPartyCallBackException from 'src/common/exceptions/ThirdPartyCallBackException';
 
 class EntryController {
     constructor(private entryService: EntryService) {}
@@ -110,7 +109,7 @@ class EntryController {
         const token = await this.entryService.googleCallback(code, user);
 
         try {
-            const res = await this.entryService.syncEntry(token, request.user._id);
+            await this.entryService.syncEntry(token, request.user._id);
 
             response.redirect(process.env.HOST_URL);
         } catch (err) {
