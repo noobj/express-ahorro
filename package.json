@@ -18,6 +18,7 @@
   },
   "main": "dist/src/server.js",
   "dependencies": {
+    "aws-sdk": "^2.1007.0",
     "axios": "^0.21",
     "bcrypt": "^5.0.1",
     "bootstrap-vue": "^2.21.2",
@@ -27,6 +28,7 @@
     "connect-mongo": "^4.4.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^10.0.0",
     "envalid": "^7.1.1",
     "express": "^4.17.1",
@@ -46,7 +48,9 @@
     "vue": "^2.6.14",
     "vue-chartjs": "^3.5.1",
     "vue-class-component": "^7.2.3",
-    "vue-property-decorator": "^9.1.2"
+    "vue-property-decorator": "^9.1.2",
+    "winston": "^3.3.3",
+    "winston-cloudwatch": "^3.1.0"
   },
   "devDependencies": {
     "@serverless/typescript": "^2.23.0",

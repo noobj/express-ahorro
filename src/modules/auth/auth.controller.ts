@@ -10,12 +10,13 @@ import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthen
 import User from '../users/user.interface';
 import UserNotFoundException from 'src/common/exceptions/UserNotFoundException';
 import { ThirdPartyfactory, ServiceKeys } from './third_party/thirdParty.factory';
+import winston from 'winston';
 
 class AuthenticationController {
     public router = express.Router();
     private user = userModel;
 
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService, private logger: winston.Logger) {}
 
     public registration = async (
         request: any,
@@ -95,8 +96,7 @@ class AuthenticationController {
                 ThirdPartyfactory.getThirdPartyServiceInstance(serviceType);
             user = await thirdPartyinstance.handleCallback(request);
         } catch (err) {
-            // needs to log err;
-            console.log(err);
+            this.logger.error(err);
             response.redirect(`${process.env.HOST_URL}/login.html`);
             return;
         }

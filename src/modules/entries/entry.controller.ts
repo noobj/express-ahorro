@@ -3,9 +3,10 @@ import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 import moment from 'moment';
 import EntryService from './entry.service';
 import HttpException from 'src/common/exceptions/HttpException';
+import winston from 'winston';
 
 class EntryController {
-    constructor(private entryService: EntryService) {}
+    constructor(private entryService: EntryService, private logger: winston.Logger) {}
 
     public getAllEntries = async (
         request: requestWithUser,
@@ -88,7 +89,7 @@ class EntryController {
 
             response.status(res.status).send(res);
         } catch (err) {
-            console.log(err);
+            this.logger.error(err);
             next(new HttpException(408, 'sync with third party failed'));
         }
     };
@@ -100,12 +101,13 @@ class EntryController {
     ) => {
         const code = request?.query?.code?.toString();
         const error = request?.query?.error?.toString();
+
+        const user = request.user;
         if (error != undefined) {
+            this.logger.error(`User ${user.account} google oauth failed`);
             response.redirect(process.env.HOST_URL);
             return;
         }
-
-        const user = request.user;
         const token = await this.entryService.googleCallback(code, user);
 
         try {
@@ -113,7 +115,7 @@ class EntryController {
 
             response.redirect(process.env.HOST_URL);
         } catch (err) {
-            console.log(err);
+            this.logger.error(err);
             next(new HttpException(408, 'sync with third party failed'));
         }
     };

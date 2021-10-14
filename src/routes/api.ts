@@ -7,10 +7,11 @@ import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
 import validationMiddleware from 'src/common/middlewares/validation.middleware';
 import CreateUserDto from 'src/modules/users/user.dto';
 import LogInDto from 'src/modules/auth/logIn.dto';
+import logger from 'src/common/loggers';
 
 const router = express.Router();
-const authController = new AuthController(new AuthService());
-const entryController = new EntryController(new EntryService());
+const authController = new AuthController(new AuthService(), logger);
+const entryController = new EntryController(new EntryService(), logger);
 
 router.get('/entries', jwtAuthMiddleware, entryController.getAllEntries);
 router.post('/entries/sync', jwtAuthMiddleware, entryController.sync);
