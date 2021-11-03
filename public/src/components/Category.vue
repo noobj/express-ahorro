@@ -12,7 +12,6 @@
                 title="Exclude this category"
                 type="image"
                 src="../trashcan.png"
-                style="float: left"
                 @click="onClickButton(category._id)"
             />
         </div>

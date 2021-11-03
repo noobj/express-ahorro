@@ -1,13 +1,13 @@
 <template>
     <div id="app">
-        <div style="display: inline-block">
+        <div>
             <input
                 type="image"
                 src="./favicon-96x96.png"
                 onclick="window.location.reload();"
                 class="float-left mr-1.5 ml-1.5 w-10"
             />
-            <div style="float: left">
+            <div>
                 <input
                     class="text-black"
                     v-model="start"
@@ -27,7 +27,7 @@
             <font face="Comic sans MS" size="5" style="float: left; font-weight: bold"
                 >&nbsp;&raquo;&nbsp;</font
             >
-            <div style="float: left">
+            <div>
                 <input
                     class="text-black"
                     v-model="end"
@@ -99,18 +99,22 @@
                 :options="options"
             ></Yearlychart>
         </div>
-        <div style="max-width: 600px; margin: 75px; float: left">
-            <Chart :chart-data="datacollection"></Chart>
+        <div class="flex flex-col sm:flex-row">
+            <div class="flex-auto max-w-screen-sm">
+                <Chart :chart-data="datacollection"></Chart>
+            </div>
+            <div class="flex-auto flex-col">
+                <Category
+                    @active-category="activeCategory"
+                    @exclude-category="excludeCategory"
+                    v-for="category in categories"
+                    :key="category._id"
+                    :category="category"
+                    :active-cat="activeCat"
+                    :total="total"
+                ></Category>
+            </div>
         </div>
-        <Category
-            @active-category="activeCategory"
-            @exclude-category="excludeCategory"
-            v-for="category in categories"
-            :key="category._id"
-            :category="category"
-            :active-cat="activeCat"
-            :total="total"
-        ></Category>
     </div>
 </template>
 
@@ -290,6 +294,12 @@ export default {
         }
     },
     watch: {
+        end() {
+            this.fetchEntries();
+        },
+        start() {
+            this.fetchEntries();
+        },
         entriesSortByDate() {
             this.fetchEntries();
         }
