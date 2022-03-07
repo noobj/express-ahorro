@@ -7,6 +7,7 @@ import userModel from '../users/user.model';
 import categoryModel from './category.model';
 import { typeMap } from './built-in_category.map';
 import moment from 'moment';
+import { Service } from 'typedi';
 
 type exclusiveConditin = {
     $ne: any[];
@@ -22,6 +23,7 @@ type googleToken = {
     refresh_token: string;
 };
 
+@Service()
 class EntryService {
     public async fetchEntries(
         user: User,

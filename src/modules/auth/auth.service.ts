@@ -3,7 +3,9 @@ import TokenData from 'src/common/interfaces/tokenData.interface';
 import DataStoredInToken from 'src/common/interfaces/dataStoredInToken';
 import * as jwt from 'jsonwebtoken';
 import userModel from '../users/user.model';
+import { Service } from 'typedi';
 
+@Service()
 class AuthService {
     public generateAccessToken(user: User): TokenData {
         const expiresIn = +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME;

@@ -1,11 +1,9 @@
 import { buildDevLogger } from './dev.logger';
 import { buildProdLogger } from './prod.logger';
+import { Container } from 'typedi';
 
-let logger = null;
 if (process.env.NODE_ENV === 'dev') {
-    logger = buildDevLogger();
+    Container.set('logger', buildDevLogger());
 } else {
-    logger = buildProdLogger();
+    Container.set('logger', buildProdLogger());
 }
-
-export default logger;

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import errorMiddleware from './common/middlewares/error.middleware';
 import { validateEnv } from './common/helpers/utils';
 import express from 'express';
-import { join } from 'path';
+// import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import serverless from 'serverless-http';
 import routes from 'src/routes/api';
@@ -40,7 +40,8 @@ app.use(
         extended: true
     })
 );
-app.use(express.static(join(__dirname, 'public')));
+
+// app.use(express.static(join(__dirname, 'public')));
 app.use(cookieParser(COOKIE_SECRET));
 app.use('/', routes);
 app.use(errorMiddleware);
@@ -66,7 +67,7 @@ if (process.env.NODE_ENV === 'dev') {
     const server = https.createServer(options, app);
     const port = +process.env.SERVER_PORT;
     server.listen(port, () => {
-        console.log(`Example app listening at http://localhost:${port}`);
+        console.log(`Example app listening at https://localhost:${port}`);
     });
 }
 

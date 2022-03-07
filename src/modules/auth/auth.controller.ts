@@ -11,12 +11,17 @@ import User from '../users/user.interface';
 import UserNotFoundException from 'src/common/exceptions/UserNotFoundException';
 import { ThirdPartyfactory, ServiceKeys } from './third_party/thirdParty.factory';
 import winston from 'winston';
+import { Inject, Service } from 'typedi';
 
+@Service()
 class AuthenticationController {
     public router = express.Router();
     private user = userModel;
 
-    constructor(private authService: AuthService, private logger: winston.Logger) {}
+    constructor(
+        private authService: AuthService,
+        @Inject('logger') private logger: winston.Logger
+    ) {}
 
     public registration = async (
         request: any,
@@ -90,6 +95,7 @@ class AuthenticationController {
     ): Promise<void> => {
         let user;
         try {
+            throw new Error('123');
             let serviceType = request.params.type;
             serviceType = ServiceKeys.includes(serviceType) ? serviceType : 'null';
             const thirdPartyinstance =

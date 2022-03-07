@@ -4,9 +4,14 @@ import moment from 'moment';
 import EntryService from './entry.service';
 import HttpException from 'src/common/exceptions/HttpException';
 import winston from 'winston';
+import { Inject, Service } from 'typedi';
 
+@Service()
 class EntryController {
-    constructor(private entryService: EntryService, private logger: winston.Logger) {}
+    constructor(
+        private entryService: EntryService,
+        @Inject('logger') private logger: winston.Logger
+    ) {}
 
     public getAllEntries = async (
         request: requestWithUser,
