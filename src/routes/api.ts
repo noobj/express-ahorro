@@ -7,11 +7,16 @@ import validationMiddleware from 'src/common/middlewares/validation.middleware';
 import CreateUserDto from 'src/modules/users/user.dto';
 import LogInDto from 'src/modules/auth/logIn.dto';
 import 'src/common/loggers/LoggerServiceProvider';
-import { Container } from 'typedi';
+import AuthService from 'src/modules/auth/auth.service';
+import { buildDevLogger } from 'src/common/loggers/dev.logger';
+import EntryService from 'src/modules/entries/entry.service';
+// import { Container } from 'typedi';
 
 const router = express.Router();
-const authController = Container.get<AuthController>(AuthController);
-const entryController = Container.get<EntryController>(EntryController);
+// const authController = Container.get<AuthController>(AuthController);
+// const entryController = Container.get<EntryController>(EntryController);
+const authController = new AuthController(new AuthService(), buildDevLogger());
+const entryController = new EntryController(new EntryService(), buildDevLogger());
 
 router.get('/entries', jwtAuthMiddleware, entryController.getAllEntries);
 router.post('/entries/sync', jwtAuthMiddleware, entryController.sync);

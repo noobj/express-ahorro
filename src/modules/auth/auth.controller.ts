@@ -95,7 +95,6 @@ class AuthenticationController {
     ): Promise<void> => {
         let user;
         try {
-            throw new Error('123');
             let serviceType = request.params.type;
             serviceType = ServiceKeys.includes(serviceType) ? serviceType : 'null';
             const thirdPartyinstance =
