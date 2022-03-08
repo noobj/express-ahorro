@@ -1,7 +1,6 @@
 import * as express from 'express';
 import AuthController from 'src/modules/auth/auth.controller';
 import EntryController from 'src/modules/entries/entry.controller';
-import 'reflect-metadata';
 import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
 import validationMiddleware from 'src/common/middlewares/validation.middleware';
 import CreateUserDto from 'src/modules/users/user.dto';
