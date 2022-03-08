@@ -13,6 +13,7 @@
     "dev": "node -r ts-node/register/transpile-only -r tsconfig-paths/register .",
     "dev:build": "npm-run-all build dev",
     "test:overall": "jest --runInBand --config jest.overall.json",
+    "test:debug": "node --inspect-brk=0.0.0.0 -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --config jest.overall.json",
     "tsc": "tsc",
     "vue:build": "vue-cli-service build --no-clean",
     "vue:serve": "vue-cli-service serve --port 3001"
@@ -36,8 +37,6 @@
     "express-session": "^1.17.2",
     "googleapis": "^81.0.0",
     "https": "^1.0.0",
-    "inversify": "^5.1.1",
-    "inversify-express-utils": "^6.3.2",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
     "mongoose": "^5.13.2",

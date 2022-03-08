@@ -53,7 +53,7 @@ jobs:
             app-name: serverless-framework-orb
             org-name: circleci
         - run:
-            command: serverless deploy -v
+            command: serverless deploy
             name: deploy
 workflows:
   version: 2

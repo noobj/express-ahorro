@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import errorMiddleware from './common/middlewares/error.middleware';
