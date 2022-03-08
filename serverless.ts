@@ -3,7 +3,6 @@ import type { AWS } from '@serverless/typescript';
 const serverlessConfiguration: AWS = {
     service: 'lambda-jjj',
     useDotenv: true,
-    frameworkVersion: '2',
     custom: {
         webpack: {
             webpackConfig: './webpack.config.js',
