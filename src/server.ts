@@ -59,8 +59,8 @@ mongoose.connect(
 
 if (process.env.NODE_ENV === 'dev') {
     app.use('/dev', routes);
-    const key = readFileSync(__dirname + '/../../key.pem');
-    const cert = readFileSync(__dirname + '/../../cert.pem');
+    const key = readFileSync(__dirname + '/../key.pem');
+    const cert = readFileSync(__dirname + '/../cert.pem');
     const options = {
         key: key,
         cert: cert

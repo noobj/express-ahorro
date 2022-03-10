@@ -20,7 +20,7 @@
             "src/*": ["src/*"]
         },
     },
-    "include": ["src/**/*.ts", "serverless.ts"],
+    "include": ["src/**/*.ts"],
     "exclude": [
         "node_modules/**/*",
         ".serverless/**/*",

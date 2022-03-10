@@ -16,11 +16,26 @@ provider:
     shouldStartNameWithService: true
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    SERVER_PORT: 3333
+    MONGO_USER: ${ssm:/lambda/ahorro/prod/MONGO_USER}
+    MONGO_PASSWORD: ${ssm:/lambda/ahorro/prod/MONGO_PASSWORD}
+    MONGO_PATH: ${ssm:/lambda/ahorro/prod/MONGO_PATH}
+    HOST_URL: https://ahorrojs.netlify.app
+    JWT_ACCESS_TOKEN_SECRET: ${ssm:/lambda/ahorro/prod/JWT_ACCESS_TOKEN_SECRET}
+    JWT_ACCESS_TOKEN_EXPIRATION_TIME: 900
+    JWT_REFRESH_TOKEN_SECRET: ${ssm:/lambda/ahorro/prod/JWT_REFRESH_TOKEN_SECRET}
+    JWT_REFRESH_TOKEN_EXPIRATION_TIME: 36000
+    COOKIE_SECRET: ${ssm:/lambda/ahorro/prod/COOKIE_SECRET}
+    GOOGLE_CLIENT_ID: ${ssm:/lambda/ahorro/prod/GOOGLE_CLIENT_ID}
+    GOOGLE_CLIENT_SECRET: ${ssm:/lambda/ahorro/prod/GOOGLE_CLIENT_SECRET}
+    FB_CLIENT_ID: ${ssm:/lambda/ahorro/prod/FB_CLIENT_ID}
+    FB_CLIENT_SECRET: ${ssm:/lambda/ahorro/prod/FB_CLIENT_SECRET}
+    VUE_APP_BACKEND_API_BASE_URL: ${env:VUE_APP_BACKEND_API_BASE_URL}
 package:
   individually: true
 functions:
   express:
-    handler: dist/src/server.handler
+    handler: dist/server.handler
     events:
       - http:
           method: ANY

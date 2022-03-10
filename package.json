@@ -18,7 +18,7 @@
     "vue:build": "vue-cli-service build --no-clean",
     "vue:serve": "vue-cli-service serve --port 3001"
   },
-  "main": "dist/src/server.js",
+  "main": "dist/server.js",
   "dependencies": {
     "aws-sdk": "^2.1007.0",
     "axios": "^0.21",
