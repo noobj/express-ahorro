@@ -12,8 +12,8 @@
     "clean": "rimraf dist/*",
     "dev": "node -r ts-node/register/transpile-only -r tsconfig-paths/register .",
     "dev:build": "npm-run-all build dev",
-    "test:overall": "jest --runInBand --config jest.overall.json",
-    "test:debug": "node --inspect-brk=0.0.0.0 -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --config jest.overall.json",
+    "test:overall": "jest --runInBand --config jest.overall.config.ts",
+    "test:debug": "node --inspect-brk=0.0.0.0 -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --config jest.overall.config.ts",
     "tsc": "tsc",
     "vue:build": "vue-cli-service build --no-clean",
     "vue:serve": "vue-cli-service serve --port 3001"
@@ -78,7 +78,6 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-prettier-vue": "^3.1.0",
     "eslint-plugin-vue": "^7.13.0",
-    "husky": "^7.0.4",
     "jest": "^26.6.3",
     "jquery": "^1.9.1",
     "json-schema-to-ts": "^1.5.0",

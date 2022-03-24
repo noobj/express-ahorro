@@ -12,10 +12,8 @@ dotenv.config({ path: join(__dirname, '../.env.example') });
 describe('EntryController (e2e)', () => {
     let cookies;
 
-    beforeAll(async (done) => {
+    beforeAll(async () => {
         await Promise.all([EntrySeeder.run(), CategorySeeder.run(), UserSeeder.run()]);
-
-        done();
     });
 
     it('/POST auth/login', (done) => {
@@ -24,7 +22,7 @@ describe('EntryController (e2e)', () => {
             password: '1234'
         };
 
-        return request(app)
+        request(app)
             .post('/auth/login')
             .type('form')
             .send(payload)
@@ -37,7 +35,7 @@ describe('EntryController (e2e)', () => {
     });
 
     it('/Get entries', (done) => {
-        return request(app)
+        request(app)
             .get('/entries')
             .set('Cookie', cookies)
             .query({
@@ -57,7 +55,7 @@ describe('EntryController (e2e)', () => {
     });
 
     it('/Get monthly', (done) => {
-        return request(app)
+        request(app)
             .get('/entries/monthly')
             .set('Cookie', cookies)
             .query({
@@ -72,7 +70,7 @@ describe('EntryController (e2e)', () => {
     });
 
     it('/POST auth/refresh', (done) => {
-        return request(app)
+        request(app)
             .post('/auth/refresh')
             .set('Cookie', cookies)
             .end(function (err, res) {
@@ -84,7 +82,7 @@ describe('EntryController (e2e)', () => {
     });
 
     it('/POST auth/logout', (done) => {
-        return request(app)
+        request(app)
             .post('/auth/logout')
             .set('Cookie', cookies)
             .end(function (err, res) {
@@ -96,7 +94,7 @@ describe('EntryController (e2e)', () => {
     });
 
     it('/Get entries after logout', (done) => {
-        return request(app)
+        request(app)
             .get('/entries')
             .set('Cookie', cookies)
             .query({
@@ -109,8 +107,7 @@ describe('EntryController (e2e)', () => {
             });
     });
 
-    afterAll(async (done) => {
+    afterAll(async () => {
         await mongoose.disconnect();
-        done();
     });
 });
