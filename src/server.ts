@@ -47,15 +47,17 @@ app.use(cookieParser(COOKIE_SECRET));
 app.use('/', routes);
 app.use(errorMiddleware);
 
-mongoose.connect(
-    `${mongoConnectString}`,
-    { useNewUrlParser: true, useUnifiedTopology: true },
-    (err) => {
-        if (!err) {
-            console.log(`Mongo connected on ${MONGO_PATH}`);
+(async function () {
+    await mongoose.connect(
+        `${mongoConnectString}`,
+        { useNewUrlParser: true, useUnifiedTopology: true },
+        (err) => {
+            if (!err) {
+                console.log(`Mongo connected on ${MONGO_PATH}`);
+            }
         }
-    }
-);
+    );
+})();
 
 if (process.env.NODE_ENV === 'dev') {
     app.use('/dev', routes);
