@@ -1,5 +1,5 @@
-import * as bcrypt from 'bcrypt';
-import * as express from 'express';
+import bcrypt from 'bcrypt';
+import express from 'express';
 import UserAccountExistedException from 'src/common/exceptions/UserAccountExistedException';
 import WrongCredentialsException from 'src/common/exceptions/WrongCredentialsException';
 import CreateUserDto from '../users/user.dto';
@@ -192,7 +192,7 @@ class AuthenticationController {
 
                 if (user != null) {
                     const accessToken = this.authService.generateAccessToken(user);
-                    response
+                    return response
                         .status(200)
                         .cookie('access_token', accessToken.token, {
                             expires: new Date(Date.now() + accessToken.expiresIn * 1000),
@@ -201,7 +201,7 @@ class AuthenticationController {
                             sameSite: 'none',
                             secure: true
                         })
-                        .send();
+                        .send('refreshed');
                 } else next(new WrongAuthenticationTokenException());
             } catch (error) {
                 next(new WrongAuthenticationTokenException());
