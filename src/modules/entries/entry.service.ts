@@ -142,7 +142,11 @@ class EntryService {
                 delete v.default_name;
                 delete v.icon;
                 delete v.behavior;
-                v.color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+                v.color =
+                    '#' +
+                    Math.floor(Math.random() * 16777215)
+                        .toString(16)
+                        .padStart(6, '0');
                 return v;
             });
 

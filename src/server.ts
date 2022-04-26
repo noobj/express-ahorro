@@ -27,7 +27,11 @@ const mongoConnectString =
 
 app.use(
     cors({
-        origin: ['https://192.168.56.101:3001', 'https://ahorrojs.netlify.app'],
+        origin: [
+            'http://192.168.56.101:3006',
+            'https://ahorrojs.netlify.app',
+            'https://192.168.56.101:3001'
+        ],
         credentials: true
     })
 );
@@ -44,8 +48,6 @@ app.use(
 
 // app.use(express.static(join(__dirname, 'public')));
 app.use(cookieParser(COOKIE_SECRET));
-app.use('/', routes);
-app.use(errorMiddleware);
 
 (async function () {
     await mongoose.connect(
@@ -61,6 +63,7 @@ app.use(errorMiddleware);
 
 if (process.env.NODE_ENV === 'dev') {
     app.use('/dev', routes);
+    app.use(errorMiddleware);
     const key = readFileSync(__dirname + '/../key.pem');
     const cert = readFileSync(__dirname + '/../cert.pem');
     const options = {
@@ -72,6 +75,9 @@ if (process.env.NODE_ENV === 'dev') {
     server.listen(port, () => {
         console.log(`Example app listening at https://localhost:${port}`);
     });
+} else {
+    app.use('/', routes);
+    app.use(errorMiddleware);
 }
 
 export default app;
