@@ -1,4 +1,4 @@
-import userModel from 'src/modules/users/user.model';
+import userModel from 'src/app/models/user.model';
 
 class UserSeeder {
     static async run() {

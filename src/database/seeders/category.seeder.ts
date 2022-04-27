@@ -1,4 +1,4 @@
-import categoryModel from 'src/modules/entries/category.model';
+import categoryModel from 'src/app/models/category.model';
 
 class CategorySeeder {
     static async run() {

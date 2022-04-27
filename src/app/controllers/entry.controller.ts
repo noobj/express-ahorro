@@ -1,7 +1,7 @@
 import * as express from 'express';
 import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 import moment from 'moment';
-import EntryService from './entry.service';
+import EntryService from '../services/entry.service';
 import HttpException from 'src/common/exceptions/HttpException';
 import winston from 'winston';
 import { Inject, Service } from 'typedi';

@@ -1,4 +1,4 @@
-import entryModel from 'src/modules/entries/entry.model';
+import entryModel from 'src/app/models/entry.model';
 
 class EntrySeeder {
     static async run() {

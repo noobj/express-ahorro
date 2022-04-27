@@ -2,14 +2,17 @@ import bcrypt from 'bcrypt';
 import express from 'express';
 import UserAccountExistedException from 'src/common/exceptions/UserAccountExistedException';
 import WrongCredentialsException from 'src/common/exceptions/WrongCredentialsException';
-import CreateUserDto from '../users/user.dto';
-import userModel from 'src/modules/users/user.model';
-import LogInDto from './logIn.dto';
-import AuthService from './auth.service';
+import CreateUserDto from '../interfaces/user.dto';
+import userModel from 'src/app/models/user.model';
+import LogInDto from '../interfaces/logIn.dto';
+import AuthService from '../services/auth.service';
 import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthenticationTokenException';
-import User from '../users/user.interface';
+import User from '../interfaces/user.interface';
 import UserNotFoundException from 'src/common/exceptions/UserNotFoundException';
-import { ThirdPartyfactory, ServiceKeys } from './third_party/thirdParty.factory';
+import {
+    ThirdPartyfactory,
+    ServiceKeys
+} from '../services/third_party/thirdParty.factory';
 import winston from 'winston';
 import { Inject, Service } from 'typedi';
 

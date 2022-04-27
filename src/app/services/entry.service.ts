@@ -1,11 +1,11 @@
-import entryModel from './entry.model';
-import EntryCatgegoryBundle from './entryCatgegoryBundle.interface';
+import entryModel from '../models/entry.model';
+import EntryCatgegoryBundle from '../interfaces/entryCatgegoryBundle.interface';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
-import User from '../users/user.interface';
-import userModel from '../users/user.model';
-import categoryModel from './category.model';
-import { typeMap } from './built-in_category.map';
+import User from '../interfaces/user.interface';
+import userModel from '../models/user.model';
+import categoryModel from '../models/category.model';
+import { typeMap } from '../../common/built-in_category.map';
 import moment from 'moment';
 import { Service } from 'typedi';
 

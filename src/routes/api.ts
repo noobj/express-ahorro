@@ -1,10 +1,10 @@
 import * as express from 'express';
-import AuthController from 'src/modules/auth/auth.controller';
-import EntryController from 'src/modules/entries/entry.controller';
+import AuthController from 'src/app/controllers/auth.controller';
+import EntryController from 'src/app/controllers/entry.controller';
 import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
 import validationMiddleware from 'src/common/middlewares/validation.middleware';
-import CreateUserDto from 'src/modules/users/user.dto';
-import LogInDto from 'src/modules/auth/logIn.dto';
+import CreateUserDto from 'src/app/interfaces/user.dto';
+import LogInDto from 'src/app/interfaces/logIn.dto';
 import 'src/common/loggers/LoggerServiceProvider';
 import { Container } from 'typedi';
 

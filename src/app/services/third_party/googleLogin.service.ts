@@ -1,8 +1,8 @@
-import { BaseThirdPartyLoginService } from './baseThirdPartyLogin.interface';
-import User from 'src/modules/users/user.interface';
+import { BaseThirdPartyLoginService } from '../../interfaces/baseThirdPartyLogin.interface';
+import User from 'src/app/interfaces/user.interface';
 import { google } from 'googleapis';
 import AuthService from '../auth.service';
-import userModel from 'src/modules/users/user.model';
+import userModel from 'src/app/models/user.model';
 import ThirdPartyCallBackException from 'src/common/exceptions/ThirdPartyCallBackException';
 
 export class GoogleLoginService implements BaseThirdPartyLoginService {

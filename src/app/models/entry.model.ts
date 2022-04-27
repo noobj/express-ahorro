@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import Entry from './entry.interface';
+import Entry from '../interfaces/entry.interface';
 
 const entrySchema = new mongoose.Schema({
     _id: Number,

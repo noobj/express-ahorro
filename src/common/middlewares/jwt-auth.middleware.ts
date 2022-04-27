@@ -2,8 +2,8 @@ import { NextFunction, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import WrongAuthenticationTokenException from '../exceptions/WrongAuthenticationTokenException';
 import DataStoredInToken from '../interfaces/dataStoredInToken';
-import userModel from 'src/modules/users/user.model';
-import User from 'src/modules/users/user.interface';
+import userModel from 'src/app/models/user.model';
+import User from 'src/app/interfaces/user.interface';
 
 async function authMiddleware(request: any, response: Response, next: NextFunction) {
     const accessToken = request?.signedCookies?.access_token;

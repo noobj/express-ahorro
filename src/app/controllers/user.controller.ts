@@ -1,10 +1,10 @@
 import * as express from 'express';
-import User from './user.interface';
+import User from '../interfaces/user.interface';
 import { IBasicController } from 'src/common/interfaces/basic.interface';
-import userModel from './user.model';
+import userModel from '../models/user.model';
 import PostNotFoundException from 'src/common/exceptions/PostNotFoundException';
 import validationMiddleware from 'src/common/middlewares/validation.middleware';
-import CreateUserDto from './user.dto';
+import CreateUserDto from '../interfaces/user.dto';
 import jwtAuthMiddleware from 'src/common/middlewares/jwt-auth.middleware';
 import requestWithUser from 'src/common/interfaces/requestWithUser.interface';
 

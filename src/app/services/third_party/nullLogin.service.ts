@@ -1,6 +1,6 @@
-import { BaseThirdPartyLoginService } from './baseThirdPartyLogin.interface';
+import { BaseThirdPartyLoginService } from '../../interfaces/baseThirdPartyLogin.interface';
 import NullThirdPartyServiceException from 'src/common/exceptions/NullThirdPartyServiceException';
-import User from 'src/modules/users/user.interface';
+import User from 'src/app/interfaces/user.interface';
 
 export class NullLoginService implements BaseThirdPartyLoginService {
     accountPrefix = 'null';
