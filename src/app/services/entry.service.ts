@@ -64,6 +64,7 @@ class EntryService {
                     },
                     entries: {
                         $push: {
+                            _id: '$_id',
                             amount: '$amount',
                             date: '$date',
                             descr: '$descr'
