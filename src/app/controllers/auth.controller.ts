@@ -1,9 +1,13 @@
 import bcrypt from 'bcrypt';
 import express from 'express';
+import winston from 'winston';
+import { Inject, Service } from 'typedi';
+
 import UserAccountExistedException from 'src/common/exceptions/UserAccountExistedException';
 import WrongCredentialsException from 'src/common/exceptions/WrongCredentialsException';
 import CreateUserDto from '../interfaces/user.dto';
 import userModel from 'src/app/models/user.model';
+import LoginInfoModel from '../models/loginInfo.model';
 import LogInDto from '../interfaces/logIn.dto';
 import AuthService from '../services/auth.service';
 import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthenticationTokenException';
@@ -13,8 +17,7 @@ import {
     ThirdPartyfactory,
     ServiceKeys
 } from '../services/third_party/thirdParty.factory';
-import winston from 'winston';
-import { Inject, Service } from 'typedi';
+import TokenData from 'src/common/interfaces/tokenData.interface';
 
 @Service()
 class AuthenticationController {
@@ -51,27 +54,16 @@ class AuthenticationController {
                 password: hashedPassword
             };
             const accessToken = this.authService.generateAccessToken(userForInsert);
-            const refreshToken = this.authService.generateRefreshToken(userForInsert);
+            const refreshToken = await this.authService.generateRefreshToken(
+                userForInsert
+            );
             const user = await this.user.create({
                 ...userForInsert,
                 refresh_token: refreshToken.token
             });
             user.password = undefined;
-            user.refresh_token = undefined;
-            response
-                .status(201)
-                .cookie('access_token', accessToken.token, {
-                    expires: new Date(Date.now() + accessToken.expiresIn * 1000),
-                    httpOnly: true,
-                    signed: true
-                })
-                .cookie('refresh_token', refreshToken.token, {
-                    expires: new Date(Date.now() + refreshToken.expiresIn * 1000),
-                    httpOnly: true,
-                    signed: true,
-                    path: '/dev/auth/refresh'
-                });
-            response.send(user);
+
+            this.generateLoggedInResponse(response, accessToken, refreshToken).send(user);
         }
     };
 
@@ -95,7 +87,7 @@ class AuthenticationController {
         request: any,
         response: express.Response,
         next: express.NextFunction
-    ): Promise<void> => {
+    ) => {
         let user;
         try {
             let serviceType = request.params.type;
@@ -110,12 +102,18 @@ class AuthenticationController {
         }
 
         const accessToken = this.authService.generateAccessToken(user);
-        const refreshToken = this.authService.generateRefreshToken(user);
-        await this.user.updateOne(
-            { _id: user._id },
-            { refresh_token: refreshToken.token }
+        const refreshToken = await this.authService.generateRefreshToken(user);
+        this.generateLoggedInResponse(response, accessToken, refreshToken).redirect(
+            process.env.HOST_URL
         );
-        response
+    };
+
+    private generateLoggedInResponse(
+        response: express.Response,
+        accessToken: TokenData,
+        refreshToken: TokenData
+    ) {
+        return response
             .status(200)
             .cookie('access_token', accessToken.token, {
                 expires: new Date(Date.now() + accessToken.expiresIn * 1000),
@@ -132,8 +130,7 @@ class AuthenticationController {
                 secure: true,
                 path: '/dev/auth/refresh'
             });
-        response.redirect(process.env.HOST_URL);
-    };
+    }
 
     public loggingIn = async (
         request: any,
@@ -150,30 +147,13 @@ class AuthenticationController {
             if (isPasswordMatching) {
                 const userForReturn = this.authService.hideUserInfo(user);
                 const accessToken = this.authService.generateAccessToken(user);
-                const refreshToken = this.authService.generateRefreshToken(user);
-                await userModel.updateOne(
-                    { _id: user._id },
-                    { refresh_token: refreshToken.token }
-                );
+                const refreshToken = await this.authService.generateRefreshToken(user);
 
-                response
-                    .status(200)
-                    .cookie('access_token', accessToken.token, {
-                        expires: new Date(Date.now() + accessToken.expiresIn * 1000),
-                        httpOnly: true,
-                        signed: true,
-                        sameSite: 'none',
-                        secure: true
-                    })
-                    .cookie('refresh_token', refreshToken.token, {
-                        expires: new Date(Date.now() + refreshToken.expiresIn * 1000),
-                        httpOnly: true,
-                        signed: true,
-                        sameSite: 'none',
-                        secure: true,
-                        path: '/dev/auth/refresh'
-                    });
-                response.send(userForReturn);
+                return this.generateLoggedInResponse(
+                    response,
+                    accessToken,
+                    refreshToken
+                ).send(userForReturn);
             } else {
                 next(new WrongCredentialsException());
             }
@@ -218,7 +198,10 @@ class AuthenticationController {
         request: express.Request & { user: User },
         response: express.Response
     ) => {
-        await this.user.updateOne({ _id: request.user._id }, { refresh_token: '' });
+        await this.user.updateOne({ _id: request.user._id });
+        const refreshToken = request?.signedCookies?.refresh_token;
+        await LoginInfoModel.findOneAndDelete({ refresh_token: refreshToken });
+
         response
             .cookie('access_token', '', { maxAge: 0, sameSite: 'none', secure: true })
             .cookie('refresh_token', '', {

@@ -1,9 +1,10 @@
+import * as jwt from 'jsonwebtoken';
+import { Service } from 'typedi';
+
 import User from 'src/app/interfaces/user.interface';
 import TokenData from 'src/common/interfaces/tokenData.interface';
 import DataStoredInToken from 'src/common/interfaces/dataStoredInToken';
-import * as jwt from 'jsonwebtoken';
-import userModel from '../models/user.model';
-import { Service } from 'typedi';
+import LoginInfoModel from '../models/loginInfo.model';
 
 @Service()
 class AuthService {
@@ -19,15 +20,24 @@ class AuthService {
         };
     }
 
-    public generateRefreshToken(user: User): TokenData {
+    public async generateRefreshToken(user: User): Promise<TokenData> {
         const expiresIn = +process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME;
         const secret = process.env.JWT_REFRESH_TOKEN_SECRET;
         const dataStoredInToken: DataStoredInToken = {
             _id: user._id
         };
+
+        const token = jwt.sign(dataStoredInToken, secret, { expiresIn });
+
+        const loginInfo = new LoginInfoModel({
+            user,
+            refresh_token: token
+        });
+        await loginInfo.save();
+
         return {
             expiresIn,
-            token: jwt.sign(dataStoredInToken, secret, { expiresIn })
+            token
         };
     }
 
@@ -38,14 +48,15 @@ class AuthService {
             secret
         ) as DataStoredInToken;
         const id = verificationResponse._id;
-        let user = await userModel.findById(id);
-        if (user.refresh_token != refreshToken) user = null;
-        return user;
+        const loginInfo = await LoginInfoModel.findOne({
+            refresh_token: refreshToken
+        }).populate('user');
+        if (loginInfo.user._id != id) return null;
+        return loginInfo.user;
     }
 
     public hideUserInfo(user: User): Partial<User> {
         user.password = undefined;
-        user.refresh_token = undefined;
         user.google_access_token = undefined;
         user.google_refresh_token = undefined;
 
