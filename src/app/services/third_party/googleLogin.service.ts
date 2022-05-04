@@ -46,7 +46,7 @@ export class GoogleLoginService extends ThirdPartyAbstractService {
         const { id: googleId } = userInfo.data;
         const accountPrefix = 'Goo';
 
-        let user: User = await userModel.findOne({ account: accountPrefix + googleId });
+        let user = await userModel.findOne({ account: accountPrefix + googleId });
 
         // redirect new user to register page
         if (!user) user = await this.createNewUser(googleId);

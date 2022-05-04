@@ -7,7 +7,7 @@ const categorySchema = new mongoose.Schema({
     color: String,
     user: {
         ref: 'User',
-        type: mongoose.Schema.Types.Number
+        type: mongoose.Schema.Types.ObjectId
     }
 });
 

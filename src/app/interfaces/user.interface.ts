@@ -1,5 +1,4 @@
 interface User {
-    _id: number;
     account: string;
     password?: string;
     google_access_token?: string;

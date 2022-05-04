@@ -5,14 +5,15 @@ import { Inject, Service } from 'typedi';
 
 import UserAccountExistedException from 'src/common/exceptions/UserAccountExistedException';
 import WrongCredentialsException from 'src/common/exceptions/WrongCredentialsException';
+import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthenticationTokenException';
+import UserNotFoundException from 'src/common/exceptions/UserNotFoundException';
+
 import CreateUserDto from '../interfaces/user.dto';
-import userModel from 'src/app/models/user.model';
+import UserModel from 'src/app/models/user.model';
 import LoginInfoModel from '../models/loginInfo.model';
 import LogInDto from '../interfaces/logIn.dto';
 import AuthService from '../services/auth.service';
-import WrongAuthenticationTokenException from 'src/common/exceptions/WrongAuthenticationTokenException';
 import User from '../interfaces/user.interface';
-import UserNotFoundException from 'src/common/exceptions/UserNotFoundException';
 import {
     ThirdPartyfactory,
     ServiceKeys
@@ -22,7 +23,6 @@ import TokenData from 'src/common/interfaces/tokenData.interface';
 @Service()
 class AuthenticationController {
     public router = express.Router();
-    private user = userModel;
 
     constructor(
         private authService: AuthService,
@@ -35,33 +35,21 @@ class AuthenticationController {
         next: express.NextFunction
     ) => {
         const userData: CreateUserDto = request.body;
-        if (await this.user.findOne({ account: userData.account })) {
+        if (await UserModel.findOne({ account: userData.account })) {
             next(new UserAccountExistedException(userData.account));
         } else {
-            // get the last _id
-            const { _id } = await this.user
-                .find({}, { _id: 1 })
-                .sort({ _id: -1 })
-                .limit(1)
-                .then((res) => {
-                    return res[0];
-                });
-
             const hashedPassword = await bcrypt.hash(userData.password, 10);
             const userForInsert = {
                 ...userData,
-                _id: _id + 1,
                 password: hashedPassword
             };
-            const accessToken = this.authService.generateAccessToken(userForInsert);
-            const refreshToken = await this.authService.generateRefreshToken(
-                userForInsert
-            );
-            const user = await this.user.create({
-                ...userForInsert,
-                refresh_token: refreshToken.token
+            const user = await UserModel.create({
+                ...userForInsert
             });
             user.password = undefined;
+
+            const accessToken = this.authService.generateAccessToken(user);
+            const refreshToken = await this.authService.generateRefreshToken(user);
 
             this.generateLoggedInResponse(response, accessToken, refreshToken).send(user);
         }
@@ -128,7 +116,7 @@ class AuthenticationController {
                 signed: true,
                 sameSite: 'none',
                 secure: true,
-                path: '/dev/auth/refresh'
+                path: '/dev/auth'
             });
     }
 
@@ -138,7 +126,7 @@ class AuthenticationController {
         next: express.NextFunction
     ) => {
         const logInData: LogInDto = request.body;
-        const user = await userModel.findOne({ account: logInData.account });
+        const user = await UserModel.findOne({ account: logInData.account });
         if (user && user.password) {
             const isPasswordMatching = await bcrypt.compare(
                 logInData.password,
@@ -198,7 +186,6 @@ class AuthenticationController {
         request: express.Request & { user: User },
         response: express.Response
     ) => {
-        await this.user.updateOne({ _id: request.user._id });
         const refreshToken = request?.signedCookies?.refresh_token;
         await LoginInfoModel.findOneAndDelete({ refresh_token: refreshToken });
 

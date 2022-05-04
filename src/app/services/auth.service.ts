@@ -1,14 +1,14 @@
 import * as jwt from 'jsonwebtoken';
 import { Service } from 'typedi';
 
-import User from 'src/app/interfaces/user.interface';
+import { UserDocument } from '../models/user.model';
 import TokenData from 'src/common/interfaces/tokenData.interface';
 import DataStoredInToken from 'src/common/interfaces/dataStoredInToken';
 import LoginInfoModel from '../models/loginInfo.model';
 
 @Service()
 class AuthService {
-    public generateAccessToken(user: User): TokenData {
+    public generateAccessToken(user: UserDocument): TokenData {
         const expiresIn = +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME;
         const secret = process.env.JWT_ACCESS_TOKEN_SECRET;
         const dataStoredInToken: DataStoredInToken = {
@@ -20,7 +20,7 @@ class AuthService {
         };
     }
 
-    public async generateRefreshToken(user: User): Promise<TokenData> {
+    public async generateRefreshToken(user: UserDocument): Promise<TokenData> {
         const expiresIn = +process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME;
         const secret = process.env.JWT_REFRESH_TOKEN_SECRET;
         const dataStoredInToken: DataStoredInToken = {
@@ -41,7 +41,7 @@ class AuthService {
         };
     }
 
-    public async authRefreshToken(refreshToken): Promise<User | null> {
+    public async authRefreshToken(refreshToken): Promise<UserDocument | null> {
         const secret = process.env.JWT_REFRESH_TOKEN_SECRET;
         const verificationResponse = jwt.verify(
             refreshToken,
@@ -55,7 +55,7 @@ class AuthService {
         return loginInfo.user;
     }
 
-    public hideUserInfo(user: User): Partial<User> {
+    public hideUserInfo(user: UserDocument): Partial<UserDocument> {
         user.password = undefined;
         user.google_access_token = undefined;
         user.google_refresh_token = undefined;

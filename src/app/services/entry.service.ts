@@ -2,8 +2,7 @@ import entryModel from '../models/entry.model';
 import EntryCatgegoryBundle from '../interfaces/entryCatgegoryBundle.interface';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
-import User from '../interfaces/user.interface';
-import userModel from '../models/user.model';
+import userModel, { UserDocument } from '../models/user.model';
 import categoryModel from '../models/category.model';
 import { typeMap } from '../../common/built-in_category.map';
 import moment from 'moment';
@@ -26,7 +25,7 @@ type googleToken = {
 @Service()
 class EntryService {
     public async fetchEntries(
-        user: User,
+        user: UserDocument,
         timeStart: string,
         timeEnd: string,
         categoriesExclude: string[],
@@ -87,7 +86,7 @@ class EntryService {
         ]);
     }
 
-    public async syncEntry(token: googleToken, userId: number): Promise<any> {
+    public async syncEntry(token: googleToken, userId: string): Promise<any> {
         const clientId = process.env.GOOGLE_CLIENT_ID;
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
         const redirectUrl = `${process.env.VUE_APP_BACKEND_API_BASE_URL}/entries/sync/callback`;
@@ -213,7 +212,7 @@ class EntryService {
             }));
     }
 
-    public async googleCallback(code: string, user: User): Promise<any> {
+    public async googleCallback(code: string, user: UserDocument): Promise<any> {
         const clientId = process.env.GOOGLE_CLIENT_ID;
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
         const redirectUrl = `${process.env.VUE_APP_BACKEND_API_BASE_URL}/entries/sync/callback`;

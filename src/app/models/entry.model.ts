@@ -9,7 +9,7 @@ const entrySchema = new mongoose.Schema({
     descr: String,
     user: {
         ref: 'User',
-        type: mongoose.Schema.Types.Number
+        type: mongoose.Schema.Types.ObjectId
     },
     category: {
         ref: 'Category',
