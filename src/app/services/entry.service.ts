@@ -111,15 +111,6 @@ class EntryService {
             };
         }
 
-        // get the last _id
-        let { _id } = await entryModel
-            .find({}, { _id: 1 })
-            .sort({ _id: -1 })
-            .limit(1)
-            .then((res) => {
-                return res[0] || { _id: 0 };
-            });
-
         const session = await entryModel.startSession();
         await session.withTransaction(async () => {
             await entryModel.deleteMany({ user: userId }, { session });
@@ -132,15 +123,7 @@ class EntryService {
 
             await CategoryModel.insertMany(categories, { session });
 
-            const entries = res.entries.map((v) => {
-                v._id = ++_id;
-                v.amount = parseInt(v.amount);
-                v.category = categoryIdMap[parseInt(v.category_id)];
-                v.user = userId;
-                delete v.category_id;
-                delete v.routine_id;
-                return v;
-            });
+            const entries = this.rearrangeEntries(res.entries, userId, categoryIdMap);
             await entryModel.insertMany(entries, { session });
         });
 
@@ -152,6 +135,18 @@ class EntryService {
             status: 200,
             message
         };
+    }
+
+    private rearrangeEntries(entries: any, userId: string, categoryIdMap: string[]) {
+        return entries.map((v) => {
+            v.amount = parseInt(v.amount);
+            v.category = categoryIdMap[parseInt(v.category_id)];
+            v.user = userId;
+            delete v._id;
+            delete v.category_id;
+            delete v.routine_id;
+            return v;
+        });
     }
 
     private rearrangeCategories(categories: any, userId: string) {

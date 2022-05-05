@@ -1,8 +1,19 @@
 import * as mongoose from 'mongoose';
-import Entry from '../interfaces/entry.interface';
+import { UserDocument } from './user.model';
+import { CategoryDocument } from './category.model';
+
+export interface Entry {
+    account_id: string;
+    amount: number;
+    user: mongoose.PopulatedDoc<UserDocument>;
+    category: mongoose.PopulatedDoc<CategoryDocument>;
+    date: string;
+    descr: string;
+}
+
+export interface EntryDocument extends Entry, mongoose.Document {}
 
 const entrySchema = new mongoose.Schema({
-    _id: Number,
     account_id: String,
     amount: Number,
     date: String,
@@ -20,7 +31,7 @@ const entrySchema = new mongoose.Schema({
 const tmpEntryModel = mongoose.models !== {} ? mongoose.models?.Entry : null;
 
 const entryModel = tmpEntryModel
-    ? (mongoose.models.Entry as mongoose.Model<Entry & mongoose.Document>)
-    : mongoose.model<Entry & mongoose.Document>('Entry', entrySchema);
+    ? (mongoose.models.Entry as mongoose.Model<EntryDocument>)
+    : mongoose.model<EntryDocument>('Entry', entrySchema);
 
 export default entryModel;

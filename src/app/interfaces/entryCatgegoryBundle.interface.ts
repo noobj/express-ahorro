@@ -1,5 +1,5 @@
 import { Category } from '../models/category.model';
-import Entry from './entry.interface';
+import { Entry } from '../models/entry.model';
 
 export default interface EntryCatgegoryBundle {
     _id: {
