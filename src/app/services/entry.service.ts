@@ -124,32 +124,18 @@ class EntryService {
         await session.withTransaction(async () => {
             await entryModel.deleteMany({ user: userId }, { session });
             await CategoryModel.deleteMany({ user: userId }, { session });
-            const idMap = [];
 
-            const categories = res.categories.map((v) => {
-                const newCategoryId = mongoose.Types.ObjectId();
-                idMap[v._id] = newCategoryId;
-                v._id = newCategoryId;
-                const builtInName = typeMap[v.name];
-                if (builtInName) v.name = builtInName;
-                v.user = userId;
-                delete v.default_name;
-                delete v.icon;
-                delete v.behavior;
-                v.color =
-                    '#' +
-                    Math.floor(Math.random() * 16777215)
-                        .toString(16)
-                        .padStart(6, '0');
-                return v;
-            });
+            const { categories, categoryIdMap } = this.rearrangeCategories(
+                res.categories,
+                userId
+            );
 
             await CategoryModel.insertMany(categories, { session });
 
             const entries = res.entries.map((v) => {
                 v._id = ++_id;
                 v.amount = parseInt(v.amount);
-                v.category = idMap[parseInt(v.category_id)];
+                v.category = categoryIdMap[parseInt(v.category_id)];
                 v.user = userId;
                 delete v.category_id;
                 delete v.routine_id;
@@ -165,6 +151,33 @@ class EntryService {
         return {
             status: 200,
             message
+        };
+    }
+
+    private rearrangeCategories(categories: any, userId: string) {
+        const categoryIdMap = [];
+
+        categories = categories.map((v) => {
+            const newCategoryId = new mongoose.Types.ObjectId();
+            categoryIdMap[v._id] = newCategoryId;
+            v._id = newCategoryId;
+            const builtInName = typeMap[v.name];
+            if (builtInName) v.name = builtInName;
+            v.user = userId;
+            delete v.default_name;
+            delete v.icon;
+            delete v.behavior;
+            v.color =
+                '#' +
+                Math.floor(Math.random() * 16777215)
+                    .toString(16)
+                    .padStart(6, '0');
+            return v;
+        });
+
+        return {
+            categoryIdMap,
+            categories
         };
     }
 
