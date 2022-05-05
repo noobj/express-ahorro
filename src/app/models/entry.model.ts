@@ -13,7 +13,7 @@ const entrySchema = new mongoose.Schema({
     },
     category: {
         ref: 'Category',
-        type: mongoose.Schema.Types.Number
+        type: mongoose.Schema.Types.ObjectId
     }
 });
 

@@ -2,11 +2,12 @@ import entryModel from '../models/entry.model';
 import EntryCatgegoryBundle from '../interfaces/entryCatgegoryBundle.interface';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
-import userModel, { UserDocument } from '../models/user.model';
-import categoryModel from '../models/category.model';
+import UserModel, { UserDocument } from '../models/user.model';
+import CategoryModel from '../models/category.model';
 import { typeMap } from '../../common/built-in_category.map';
 import moment from 'moment';
 import { Service } from 'typedi';
+import mongoose from 'mongoose';
 
 type exclusiveConditin = {
     $ne: any[];
@@ -119,23 +120,16 @@ class EntryService {
                 return res[0] || { _id: 0 };
             });
 
-        let { _id: catId } = await categoryModel
-            .find({}, { _id: 1 })
-            .sort({ _id: -1 })
-            .limit(1)
-            .then((res) => {
-                return res[0] || { _id: 0 };
-            });
-
         const session = await entryModel.startSession();
         await session.withTransaction(async () => {
             await entryModel.deleteMany({ user: userId }, { session });
-            await categoryModel.deleteMany({ user: userId }, { session });
+            await CategoryModel.deleteMany({ user: userId }, { session });
             const idMap = [];
 
             const categories = res.categories.map((v) => {
-                idMap[v._id] = ++catId;
-                v._id = catId;
+                const newCategoryId = mongoose.Types.ObjectId();
+                idMap[v._id] = newCategoryId;
+                v._id = newCategoryId;
                 const builtInName = typeMap[v.name];
                 if (builtInName) v.name = builtInName;
                 v.user = userId;
@@ -150,7 +144,7 @@ class EntryService {
                 return v;
             });
 
-            await categoryModel.insertMany(categories, { session });
+            await CategoryModel.insertMany(categories, { session });
 
             const entries = res.entries.map((v) => {
                 v._id = ++_id;
@@ -220,7 +214,7 @@ class EntryService {
         const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
         const token = await oAuth2Client.getToken(code);
 
-        await userModel.updateOne(
+        await UserModel.updateOne(
             { _id: user._id },
             {
                 google_refresh_token: token.tokens.refresh_token,

@@ -1,4 +1,4 @@
-import Category from './category.interface';
+import { Category } from '../models/category.model';
 import Entry from './entry.interface';
 
 export default interface EntryCatgegoryBundle {

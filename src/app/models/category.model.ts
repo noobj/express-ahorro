@@ -1,8 +1,15 @@
 import * as mongoose from 'mongoose';
-import Category from '../interfaces/category.interface';
+import { UserDocument } from '../models/user.model';
+
+export interface Category {
+    user: mongoose.PopulatedDoc<UserDocument>;
+    name: string;
+    color: string;
+}
+
+export interface CategoryDocument extends Category, mongoose.Document {}
 
 const categorySchema = new mongoose.Schema({
-    _id: Number,
     name: String,
     color: String,
     user: {
@@ -14,7 +21,7 @@ const categorySchema = new mongoose.Schema({
 const tmpCategoryModel = mongoose.models !== {} ? mongoose.models?.Category : null;
 
 const categoryModel = tmpCategoryModel
-    ? (mongoose.models.Category as mongoose.Model<Category & mongoose.Document>)
-    : mongoose.model<Category & mongoose.Document>('Category', categorySchema);
+    ? (mongoose.models.Category as mongoose.Model<CategoryDocument>)
+    : mongoose.model<CategoryDocument>('Category', categorySchema);
 
 export default categoryModel;
