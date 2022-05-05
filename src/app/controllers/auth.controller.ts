@@ -175,6 +175,7 @@ class AuthenticationController {
                         .send('refreshed');
                 } else next(new WrongAuthenticationTokenException());
             } catch (error) {
+                this.logger.error(error.message);
                 next(new WrongAuthenticationTokenException());
             }
         } else {

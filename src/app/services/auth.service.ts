@@ -51,7 +51,7 @@ class AuthService {
         const loginInfo = await LoginInfoModel.findOne({
             refresh_token: refreshToken
         }).populate('user');
-        if (loginInfo.user._id != id) return null;
+        if (loginInfo?.user?._id != id) return null;
         return loginInfo.user;
     }
 
