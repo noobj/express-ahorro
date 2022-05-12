@@ -2,28 +2,23 @@ import 'reflect-metadata';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import errorMiddleware from './common/middlewares/error.middleware';
-import { validateEnv } from './common/helpers/utils';
 import express from 'express';
-// import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import serverless from 'serverless-http';
 import routes from 'src/routes/api';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import https from 'https';
 import { readFileSync } from 'fs';
-
-dotenv.config();
-
-validateEnv();
+import { config } from './config/config';
 const app = express();
-const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH, COOKIE_SECRET } = process.env;
+const { user: mongoUser, password: mongoPassword, host: mongoHost } = config.mongo;
+const { cookieSecret, serverPort } = config.app;
 const { MONGO_TEST_USER, MONGO_TEST_PASSWORD, MONGO_TEST_PATH } = process.env;
 
 const mongoConnectString =
     process.env.NODE_ENV == 'test'
-        ? `mongodb://${MONGO_TEST_USER}:${MONGO_TEST_PASSWORD}${MONGO_TEST_PATH}`
-        : `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`;
+        ? `mongodb://${MONGO_TEST_USER}:${MONGO_TEST_PASSWORD}@${MONGO_TEST_PATH}`
+        : `mongodb+srv://${mongoUser}:${mongoPassword}@${mongoHost}`;
 
 app.use(
     cors({
@@ -47,7 +42,7 @@ app.use(
 );
 
 // app.use(express.static(join(__dirname, 'public')));
-app.use(cookieParser(COOKIE_SECRET));
+app.use(cookieParser(cookieSecret));
 
 (async function () {
     await mongoose.connect(
@@ -55,7 +50,7 @@ app.use(cookieParser(COOKIE_SECRET));
         { useNewUrlParser: true, useUnifiedTopology: true },
         (err) => {
             if (!err) {
-                console.log(`Mongo connected on ${MONGO_PATH}`);
+                console.log(`MongoDB connected`);
             }
         }
     );
@@ -71,9 +66,8 @@ if (process.env.NODE_ENV === 'dev') {
         cert: cert
     };
     const server = https.createServer(options, app);
-    const port = +process.env.SERVER_PORT;
-    server.listen(port, () => {
-        console.log(`Example app listening at https://localhost:${port}`);
+    server.listen(+serverPort, () => {
+        console.log(`Example app listening at https://localhost:${serverPort}`);
     });
 } else {
     app.use('/', routes);

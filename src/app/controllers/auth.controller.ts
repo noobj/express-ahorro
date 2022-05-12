@@ -196,7 +196,7 @@ class AuthenticationController {
                 maxAge: 0,
                 sameSite: 'none',
                 secure: true,
-                path: '/dev/auth/refresh'
+                path: '/dev/auth'
             })
             .send('logged out');
     };
