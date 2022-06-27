@@ -116,7 +116,7 @@ class AuthenticationController {
                 signed: true,
                 sameSite: 'none',
                 secure: true,
-                path: '/dev/auth'
+                path: '/auth'
             });
     }
 

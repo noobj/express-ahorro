@@ -23,8 +23,9 @@ const mongoConnectString =
 app.use(
     cors({
         origin: [
-            'http://192.168.56.101:3006',
+            'https://192.168.56.101:3006',
             'https://ahorrojs.netlify.app',
+            'https://ahorro-react.netlify.app',
             'https://192.168.56.101:3001'
         ],
         credentials: true
