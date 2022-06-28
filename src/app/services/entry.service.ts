@@ -99,6 +99,7 @@ class EntryService {
             oAuth2Client.setCredentials(token);
             res = await this.fetchAndReadEntries(oAuth2Client);
         } catch (err) {
+            console.log(err);
             const url = oAuth2Client.generateAuthUrl({
                 access_type: 'offline',
                 scope: ['https://www.googleapis.com/auth/drive.readonly'],
@@ -178,12 +179,18 @@ class EntryService {
 
     private async fetchAndReadEntries(oAuth2Client: OAuth2Client): Promise<any> {
         const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+
+        const dirId = await drive.files
+            .list({
+                q: "name = 'Ahorro' and mimeType = 'application/vnd.google-apps.folder'"
+            })
+            .then((res) => res.data.files[0].id);
         // Find the newest ahorro backup file
         const fileId: string = await drive.files
             .list({
                 orderBy: 'createdTime desc',
                 pageSize: 1,
-                q: "name contains 'ahorro'"
+                q: `name contains 'ahorro' and parents in '${dirId}'`
             })
             .then((res) => res.data.files[0].id)
             .catch((err) => {
